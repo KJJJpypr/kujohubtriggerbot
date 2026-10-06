@@ -1,22 +1,1983 @@
 local CONFIG_FILE = "TBUI_Config.json"
-local AUTO_EXECUTE_URL = "https://raw.githubusercontent.com/KJJJpypr/kujohubtriggerbot/main/kujohubtriggerbot.luau"
+local AUTO_EXECUTE_URL = "https://github.com/KJJJpypr/kujohubtriggerbot/blob/main/kujohubtriggerbot.luau"
+local LOCAL_AUTO_EXECUTE_FILE = "kujohubtriggerbot.luau"
 local PANEL_WIDTH, PANEL_HEIGHT = 292, 536
 local GUI_DISPLAY_ORDER = 2147483647
 
 local Settings = {
-    Enabled = false, RightClickOnly = false,
-    AutoExecute = false, SilentExecute = false,
-    Head = true, Torso = true, Legs = false,
-    ReactionDelay = 0.1, ReleaseDelay = 0.1,
-    MenuKey = "RightControl", ActivationKey = "MouseButton2"
+    Enabled = false,
+    RightClickOnly = false,
+    AutoExecute = false,
+    SilentExecute = false,
+    Head = true,
+    Torso = true,
+    Legs = false,
+    ReactionDelay = 0.10,
+    ReleaseDelay = 0.10,
+    MenuKey = "RightControl",
+    ActivationKey = "MouseButton2"
 }
 
 local C = {
-    Black = Color3.fromRGB(0, 0, 0), Panel = Color3.fromRGB(8, 8, 8),
-    Panel2 = Color3.fromRGB(14, 14, 14), White = Color3.fromRGB(240, 240, 240),
-    Gray = Color3.fromRGB(145, 145, 145), DarkGray = Color3.fromRGB(55, 55, 55),
-    Border = Color3.fromRGB(38, 38, 38), Green = Color3.fromRGB(45, 210, 95),
-    Yellow = Color3.fromRGB(235, 190, 65)
+    Black = Color3.fromRGB(0, 0, 0),
+    Panel = Color3.fromRGB(8, 8, 8),
+    Panel2 = Color3.fromRGB(14, 14, 14),
+    White = Color3.fromRGB(240, 240, 240),
+    Gray = Color3.fromRGB(145, 145, 145),
+    DarkGray = Color3.fromRGB(55, 55, 55),
+    Border = Color3.fromRGB(38, 38, 38),
+    Green = Color3.fromRGB(45, 210, 95),
+    Yellow = Color3.fromRGB(235, 190, 65),
+    Red = Color3.fromRGB(220, 70, 70)
 }
 
-local a=game:GetService("Players")local b=game:GetService("UserInputService")local c=game:GetService("RunService")local d=game:GetService("TweenService")local e=game:GetService("VirtualInputManager")local f=game:GetService("HttpService")local g=game:GetService("GuiService")local h=a.LocalPlayer;local i=h:WaitForChild("PlayerGui")local j=workspace.CurrentCamera;local k=i;pcall(function()if type(gethui)=="function"then local l=gethui()if l then k=l end end end)local function m(n,o,p)local q=Instance.new(n)for r,s in pairs(o)do q[r]=s end;q.Parent=p;return q end;local function t(q,u)m("UICorner",{CornerRadius=UDim.new(0,u)},q)end;local function v(q,w)m("UIStroke",{Color=C.Border,Thickness=1,Transparency=w or 0},q)end;local function x(q,y,z,A,B)if y<=0 then for D,E in pairs(z)do q[D]=E end;return nil end;local F=TweenInfo.new(y,A or Enum.EasingStyle.Quart,B or Enum.EasingDirection.Out)local G=d:Create(q,F,z)G:Play()return G end;local function H(I)if type(I)~="string"then return false end;if I=="MouseButton1"or I=="MouseButton2"or I=="MouseButton3"then return true end;local J,K=pcall(function()return Enum.KeyCode[I]end)return J and K~=nil end;local function L()if type(readfile)~="function"then return false end;local M;local N=pcall(function()M=readfile(CONFIG_FILE)end)if not N then return false end;if type(M)~="string"then return false end;if M==""then return false end;local O;local P;O,P=pcall(function()return f:JSONDecode(M)end)if not O then return false end;if type(P)~="table"then return false end;local Q={"Enabled","RightClickOnly","AutoExecute","SilentExecute","Head","Torso","Legs"}for R,S in ipairs(Q)do if type(P[S])=="boolean"then Settings[S]=P[S]end end;if type(P.ReactionDelay)=="number"then Settings.ReactionDelay=math.clamp(P.ReactionDelay,0,1)end;if type(P.ReleaseDelay)=="number"then Settings.ReleaseDelay=math.clamp(P.ReleaseDelay,0,1)end;if H(P.MenuKey)then Settings.MenuKey=P.MenuKey end;if H(P.ActivationKey)then Settings.ActivationKey=P.ActivationKey end;return true end;local function T()if type(writefile)~="function"then warn("TB: writefile is not available.")return false end;local P={Enabled=Settings.Enabled,RightClickOnly=Settings.RightClickOnly,AutoExecute=Settings.AutoExecute,SilentExecute=Settings.SilentExecute,Head=Settings.Head,Torso=Settings.Torso,Legs=Settings.Legs,ReactionDelay=Settings.ReactionDelay,ReleaseDelay=Settings.ReleaseDelay,MenuKey=Settings.MenuKey,ActivationKey=Settings.ActivationKey}local U;local V;U,V=pcall(function()return f:JSONEncode(P)end)if not U then warn("TB: failed to encode config.")return false end;local W;local X;W,X=pcall(function()writefile(CONFIG_FILE,V)end)if not W then warn("TB: failed to save config:",X)return false end;return true end;local function Y()if not Settings.AutoExecute then return false end;if AUTO_EXECUTE_URL==""then warn("TB: set AUTO_EXECUTE_URL to a raw script URL.")return false end;local Z=queue_on_teleport or queueonteleport;if type(Z)~="function"and type(syn)=="table"then Z=syn.queue_on_teleport end;if type(Z)~="function"then warn("TB: queue_on_teleport is unavailable.")return false end;local _=string.format("local h=game:GetService('HttpService');local ok,d=pcall(function()return h:JSONDecode(readfile(%q))end);if ok and d.AutoExecute then loadstring(game:HttpGet(%q))()end",CONFIG_FILE,AUTO_EXECUTE_URL)local J,X=pcall(Z,_)if not J then warn("TB: failed to queue auto execute:",X)end;return J end;L()if Settings.AutoExecute then Y()end;local a0=m("ScreenGui",{Name="TB",ResetOnSpawn=false,IgnoreGuiInset=true,ZIndexBehavior=Enum.ZIndexBehavior.Global,DisplayOrder=GUI_DISPLAY_ORDER},k)local function a1()pcall(function()if a0.Parent~=k then a0.Parent=k end;a0.DisplayOrder=GUI_DISPLAY_ORDER;a0.ZIndexBehavior=Enum.ZIndexBehavior.Global end)end;local a2=UDim2.new(0.5,-PANEL_WIDTH/2,0.5,-PANEL_HEIGHT/2+10)local a3=m("Frame",{Size=UDim2.fromOffset(PANEL_WIDTH,PANEL_HEIGHT),Position=a2,BackgroundColor3=C.Panel,BackgroundTransparency=0.08,BorderSizePixel=0,ClipsDescendants=true,ZIndex=2},a0)t(a3,9)v(a3,0.25)local function a4(a5)a3.Position=a5 end;local function a6(a5)a2=a5 end;a4(a2)local a7=m("Frame",{Size=UDim2.new(1,0,0,38),BackgroundColor3=C.Panel2,BackgroundTransparency=0.05,BorderSizePixel=0,Active=true,ZIndex=3},a3)t(a7,9)m("Frame",{Size=UDim2.new(1,0,0,9),Position=UDim2.new(0,0,1,-9),BackgroundColor3=C.Panel2,BorderSizePixel=0,ZIndex=3},a7)m("TextLabel",{Size=UDim2.new(1,-25,1,0),Position=UDim2.fromOffset(13,0),BackgroundTransparency=1,Text="TB",TextColor3=C.White,TextSize=12,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4},a7)local a8=m("Frame",{Size=UDim2.fromOffset(6,6),Position=UDim2.new(1,-17,0.5,-3),BackgroundColor3=Settings.Enabled and C.Green or C.DarkGray,BorderSizePixel=0,ZIndex=4},a7)t(a8,10)local a9=m("Frame",{Size=UDim2.new(1,-24,1,-52),Position=UDim2.fromOffset(12,45),BackgroundTransparency=1,ClipsDescendants=false,ZIndex=3},a3)local aa={}local ab={}local ac={}local function ad(ae,af,ag)local ah=m("Frame",{Size=UDim2.new(1,0,0,40),Position=UDim2.fromOffset(0,af),BackgroundColor3=C.Panel2,BackgroundTransparency=0.08,BorderSizePixel=0,ZIndex=3},a9)t(ah,7)v(ah,0.55)m("TextLabel",{Size=UDim2.new(1,-65,1,0),Position=UDim2.fromOffset(12,0),BackgroundTransparency=1,Text=ae,TextColor3=C.White,TextSize=11,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4},ah)local ai=m("TextButton",{Size=UDim2.fromOffset(42,24),Position=UDim2.new(1,-54,0.5,-12),BackgroundColor3=Color3.fromRGB(65,65,65),BorderSizePixel=0,Text="",AutoButtonColor=false,ZIndex=5},ah)t(ai,20)local aj=m("Frame",{Size=UDim2.fromOffset(20,20),Position=UDim2.fromOffset(2,2),BackgroundColor3=Color3.fromRGB(245,245,245),BorderSizePixel=0,ZIndex=6},ai)t(aj,20)local function ak(al)local y=al and 0.18 or 0;local am=Settings[ag]x(ai,y,{BackgroundColor3=am and C.Green or Color3.fromRGB(65,65,65)})x(aj,y,{Position=am and UDim2.new(1,-22,0,2)or UDim2.fromOffset(2,2)})end;ai.MouseButton1Click:Connect(function()Settings[ag]=not Settings[ag]ak(true)if ag=="Enabled"then x(a8,0.18,{BackgroundColor3=Settings.Enabled and C.Green or C.DarkGray})end;if ag=="SilentExecute"then T()elseif ag=="AutoExecute"then local an=T()if Settings.AutoExecute and an then Y()elseif Settings.AutoExecute then warn("TB: Auto Execute needs a writable config file.")end end end)aa[ag]=ak;ak(false)return ah end;ad("Enabled",0,"Enabled")ad("Hold Only",45,"RightClickOnly")ad("Auto Execute",90,"AutoExecute")ad("Silent Execute",135,"SilentExecute")local function ao(I)local ap={MouseButton1="LMB",MouseButton2="RMB",MouseButton3="MMB",RightControl="RCTRL",LeftControl="LCTRL",RightShift="RSHIFT",LeftShift="LSHIFT",RightAlt="RALT",LeftAlt="LALT",Return="ENTER",Backspace="BACKSPACE",Space="SPACE",Tab="TAB",Escape="ESC",CapsLock="CAPSLOCK"}return ap[I]or I end;local function aq(ar)if ar.UserInputType==Enum.UserInputType.Keyboard then if ar.KeyCode==Enum.KeyCode.Unknown then return nil end;return ar.KeyCode.Name end;if ar.UserInputType==Enum.UserInputType.MouseButton1 then return"MouseButton1"end;if ar.UserInputType==Enum.UserInputType.MouseButton2 then return"MouseButton2"end;if ar.UserInputType==Enum.UserInputType.MouseButton3 then return"MouseButton3"end;return nil end;local function as(ar,at)return aq(ar)==at end;local function au(ar)if ar.UserInputType~=Enum.UserInputType.MouseButton1 and ar.UserInputType~=Enum.UserInputType.MouseButton2 and ar.UserInputType~=Enum.UserInputType.MouseButton3 then return false end;local av;local J=pcall(function()av=g:GetGuiObjectsAtPosition(ar.Position.X,ar.Position.Y)end)if not J or type(av)~="table"then return false end;for R,aw in ipairs(av)do if aw and aw:IsDescendantOf(a0)then return true end end;return false end;local function ax(ae,af,ag)local ay=m("Frame",{Size=UDim2.new(1,0,0,36),Position=UDim2.fromOffset(0,af),BackgroundColor3=C.Panel2,BackgroundTransparency=0.08,BorderSizePixel=0,ZIndex=3},a9)t(ay,7)v(ay,0.55)m("TextLabel",{Size=UDim2.new(0.5,0,1,0),Position=UDim2.fromOffset(12,0),BackgroundTransparency=1,Text=ae,TextColor3=C.White,TextSize=10,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4},ay)local az=m("TextButton",{Size=UDim2.fromOffset(112,24),Position=UDim2.new(1,-122,0.5,-12),BackgroundColor3=C.Panel,BorderSizePixel=0,Text=ao(Settings[ag]),TextColor3=C.White,TextSize=9,Font=Enum.Font.GothamMedium,AutoButtonColor=false,ZIndex=5},ay)t(az,6)v(az,0.45)local aA=false;local aB=0;local function aC()aA=true;aB=os.clock()+0.10;az.Text="Press key / mouse..."az.TextColor3=C.Yellow;x(az,0.08,{BackgroundColor3=Color3.fromRGB(26,26,26)})end;az.MouseEnter:Connect(function()if not aA then x(az,0.1,{BackgroundColor3=Color3.fromRGB(22,22,22)})end end)az.MouseLeave:Connect(function()if not aA then x(az,0.1,{BackgroundColor3=C.Panel})end end)az.MouseButton1Click:Connect(function()aC()end)ac[ag]=function()if not aA then az.Text=ao(Settings[ag])az.TextColor3=C.White;az.BackgroundColor3=C.Panel end end;return{ProcessInput=function(ar)if not aA then return false end;if os.clock()<aB then return true end;local at=aq(ar)if not at then return true end;Settings[ag]=at;aA=false;az.Text=ao(at)az.TextColor3=C.White;az.BackgroundColor3=C.Panel;T()return true end}end;local aD=ax("Menu Key",185,"MenuKey")local aE=ax("Activation Key",226,"ActivationKey")local aF={aD,aE}local aG=m("TextLabel",{Size=UDim2.new(1,0,0,17),Position=UDim2.fromOffset(0,271),BackgroundTransparency=1,Text="TARGET PARTS",TextColor3=C.Gray,TextSize=9,Font=Enum.Font.GothamMedium,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4},a9)local aH=m("Frame",{Size=UDim2.new(1,0,0,36),Position=UDim2.fromOffset(0,289),BackgroundTransparency=1,ZIndex=3},a9)local function aI(I,aJ,ag)local az=m("TextButton",{Size=UDim2.fromOffset(88,34),Position=UDim2.fromOffset(aJ,0),BackgroundColor3=C.Panel2,BackgroundTransparency=0.1,BorderSizePixel=0,Text="",AutoButtonColor=false,ZIndex=4},aH)t(az,6)v(az,0.6)local aK=m("Frame",{Size=UDim2.fromOffset(15,15),Position=UDim2.fromOffset(9,9),BackgroundColor3=C.Panel,BorderSizePixel=0,ZIndex=5},az)t(aK,4)v(aK,0.35)local aL=m("TextLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Text="✓",TextColor3=C.Black,TextSize=11,Font=Enum.Font.GothamBold,TextTransparency=1,ZIndex=6},aK)m("TextLabel",{Size=UDim2.new(1,-30,1,0),Position=UDim2.fromOffset(30,0),BackgroundTransparency=1,Text=I,TextColor3=C.White,TextSize=10,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=5},az)local function ak(al)local y=al and 0.12 or 0;x(aK,y,{BackgroundColor3=Settings[ag]and C.White or C.Panel})x(aL,y,{TextTransparency=Settings[ag]and 0 or 1})end;az.MouseEnter:Connect(function()x(az,0.1,{BackgroundTransparency=0})end)az.MouseLeave:Connect(function()x(az,0.1,{BackgroundTransparency=0.1})end)az.MouseButton1Click:Connect(function()Settings[ag]=not Settings[ag]ak(true)end)aa[ag]=ak;ak(false)end;aI("Head",0,"Head")aI("Torso",94,"Torso")aI("Legs",188,"Legs")local function aM(ae,af,ag)local ay=m("Frame",{Size=UDim2.new(1,0,0,43),Position=UDim2.fromOffset(0,af),BackgroundTransparency=1,ZIndex=3},a9)m("TextLabel",{Size=UDim2.new(0.7,0,0,17),BackgroundTransparency=1,Text=ae,TextColor3=C.White,TextSize=10,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4},ay)local aN=m("TextLabel",{Size=UDim2.new(0.3,0,0,17),Position=UDim2.new(0.7,0,0,0),BackgroundTransparency=1,TextColor3=C.Gray,TextSize=10,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Right,ZIndex=4},ay)local aO=m("Frame",{Size=UDim2.new(1,0,0,4),Position=UDim2.fromOffset(0,27),BackgroundColor3=Color3.fromRGB(45,45,45),BorderSizePixel=0,Active=true,ZIndex=4},ay)t(aO,4)local aP=m("Frame",{Size=UDim2.new(Settings[ag],0,1,0),BackgroundColor3=C.White,BorderSizePixel=0,ZIndex=5},aO)t(aP,4)local aj=m("Frame",{Size=UDim2.fromOffset(12,12),AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(Settings[ag],0,0.5,0),BackgroundColor3=C.White,BorderSizePixel=0,Active=true,ZIndex=7},aO)t(aj,10)local aQ=false;local function aR(E,aS)E=math.clamp(E,0,1)Settings[ag]=E;aN.Text=string.format("%.2f s",E)x(aP,aS and 0.05 or 0,{Size=UDim2.new(E,0,1,0)})x(aj,aS and 0.05 or 0,{Position=UDim2.new(E,0,0.5,0)})end;local function aT(ar)local aU=aO.AbsoluteSize.X;if aU<=0 then return end;local E=(ar.Position.X-aO.AbsolutePosition.X)/aU;aR(E,true)end;local function aV(ar)if ar.UserInputType==Enum.UserInputType.MouseButton1 then aQ=true;aT(ar)end end;aO.InputBegan:Connect(aV)aj.InputBegan:Connect(aV)b.InputChanged:Connect(function(ar)if not aQ then return end;if ar.UserInputType==Enum.UserInputType.MouseMovement then aT(ar)end end)b.InputEnded:Connect(function(ar)if ar.UserInputType==Enum.UserInputType.MouseButton1 then aQ=false end end)ab[ag]=function()aR(Settings[ag],false)end;aR(Settings[ag],false)end;aM("Reaction",331,"ReactionDelay")aM("Release",380,"ReleaseDelay")local aW=m("Frame",{Size=UDim2.new(1,0,0,38),Position=UDim2.fromOffset(0,433),BackgroundTransparency=1,ZIndex=3},a9)local aX=m("TextButton",{Size=UDim2.new(1,0,1,0),Position=UDim2.fromOffset(0,0),BackgroundColor3=C.Panel2,BackgroundTransparency=0.08,BorderSizePixel=0,Text="Save Config",TextColor3=C.White,TextSize=10,Font=Enum.Font.GothamMedium,AutoButtonColor=false,ZIndex=4},aW)t(aX,7)v(aX,0.55)aX.MouseEnter:Connect(function()x(aX,0.1,{BackgroundTransparency=0})end)aX.MouseLeave:Connect(function()x(aX,0.1,{BackgroundTransparency=0.08})end)aX.MouseButton1Click:Connect(function()T()end)local aY=false;local aZ=false;local a_=false;local b0=0;local b1=false;local b2=0;local b3=nil;local function b4(b5)local K={}local function b6(I,b7)local b8=b5:FindFirstChild(I)if b8 and b8:IsA("BasePart")then table.insert(K,{Part=b8,Name=b7})end end;if Settings.Head then b6("Head","Head")end;if Settings.Torso then b6("UpperTorso","Torso")b6("LowerTorso","Torso")b6("HumanoidRootPart","Torso")b6("Torso","Torso")end;if Settings.Legs then b6("LeftUpperLeg","Legs")b6("RightUpperLeg","Legs")b6("LeftLowerLeg","Legs")b6("RightLowerLeg","Legs")b6("LeftFoot","Legs")b6("RightFoot","Legs")b6("Left Leg","Legs")b6("Right Leg","Legs")end;return K end;local b9=false;local function ba(ar)local bb=ar.Position;local bc=b:GetMouseLocation()return(bb.X~=0 or bb.Y~=0)and math.abs(bb.X-bc.X)<4 and math.abs(bb.Y-bc.Y)<4 end;b.InputBegan:Connect(function(ar)if ar.UserInputType==Enum.UserInputType.MouseButton1 and ba(ar)then b9=true end end)b.InputEnded:Connect(function(ar)if ar.UserInputType==Enum.UserInputType.MouseButton1 and b9 and ba(ar)then b9=false end end)local function bd(be)local J,X=pcall(function()e:SendMouseButtonEvent(0,0,0,be,game,0)end)if not J then warn("TB mouse button failed:",X)return false end;return true end;local function bf()if aZ then return true end;if bd(true)then aZ=true;return true end;return false end;local function bg()if not aZ or b9 then return end;bd(false)aZ=false end;local RaycastParams=RaycastParams.new()RaycastParams.FilterType=Enum.RaycastFilterType.Exclude;RaycastParams.IgnoreWater=true;local function bh()j=workspace.CurrentCamera;if not j then return nil,nil end;local bi=j.ViewportSize;return bi.X*0.5,bi.Y*0.5 end;local function bj(b8)if not b8 then return nil end;local I=b8.Name;if I=="Head"then return"Head"end;if I=="UpperTorso"or I=="LowerTorso"or I=="Torso"or I=="HumanoidRootPart"then return"Torso"end;if I=="LeftUpperLeg"or I=="RightUpperLeg"or I=="LeftLowerLeg"or I=="RightLowerLeg"or I=="LeftFoot"or I=="RightFoot"or I=="Left Leg"or I=="Right Leg"then return"Legs"end;return nil end;local function bk(bl)if bl=="Head"then return Settings.Head end;if bl=="Torso"then return Settings.Torso end;if bl=="Legs"then return Settings.Legs end;return false end;local function bm(b8)local bn,bo=bh()if not bn then return false end;if not b8 or not b8:IsA("BasePart")or not b8.Parent then return false end;local bp=b8.Size*0.5;local bq=math.huge;local br=math.huge;local bs=-math.huge;local bt=-math.huge;local bu=false;for bv=-1,1,2 do for bw=-1,1,2 do for bx=-1,1,2 do local by=b8.CFrame:PointToWorldSpace(Vector3.new(bp.X*bv,bp.Y*bw,bp.Z*bx))local bz=j:WorldToViewportPoint(by)if bz.Z>0 then bu=true;bq=math.min(bq,bz.X)br=math.min(br,bz.Y)bs=math.max(bs,bz.X)bt=math.max(bt,bz.Y)end end end end;if not bu then return false end;return bn>=bq and bn<=bs and bo>=br and bo<=bt end;local function bA()local bn,bo=bh()if not bn then return nil end;local bB=j:ViewportPointToRay(bn,bo)RaycastParams.FilterDescendantsInstances={h.Character}return workspace:Raycast(bB.Origin,bB.Direction*10000,RaycastParams)end;local function bC(b5,b8)if not b5 or not b8 or not b8.Parent then return false end;local bD=j.CFrame.Position;local B=b8.Position-bD;if B.Magnitude<=0.001 then return true end;RaycastParams.FilterDescendantsInstances={h.Character}local K=workspace:Raycast(bD,B,RaycastParams)if not K then return true end;return K.Instance:IsDescendantOf(b5)end;local function bE(bF,b5,b8,bl)return{Player=bF,Character=b5,Part=b8,PartName=bl}end;local function bG()j=workspace.CurrentCamera;if not j then return nil end;local bH=bA()if bH and bH.Instance then local bI=bH.Instance;for R,bF in ipairs(a:GetPlayers())do if bF~=h and bF.Character then local b5=bF.Character;local bJ=b5:FindFirstChildOfClass("Humanoid")if bJ and bJ.Health>0 and bI:IsDescendantOf(b5)then local bK=bj(bI)if bK and bk(bK)then return bE(bF,b5,bI,bK)end;for R,bL in ipairs(b4(b5))do local b8=bL.Part;if b8 and b8.Parent and bm(b8)and bC(b5,b8)then return bE(bF,b5,b8,bL.Name)end end;return nil end end end;local bM=bI:FindFirstAncestorOfClass("Model")if not(bM and a:GetPlayerFromCharacter(bM))then return nil end end;for R,bF in ipairs(a:GetPlayers())do if bF~=h and bF.Character then local b5=bF.Character;local bJ=b5:FindFirstChildOfClass("Humanoid")if bJ and bJ.Health>0 then for R,bL in ipairs(b4(b5))do local b8=bL.Part;if b8 and b8.Parent and bm(b8)and bC(b5,b8)then return bE(bF,b5,b8,bL.Name)end end end end end;return nil end;local function bN()b0=b0+1;a_=false end;local function bO()b2=b2+1;b1=false end;local function bP(bQ)if a_ or aZ then return end;a_=true;b0=b0+1;local bR=b0;local bS=Settings.ReactionDelay;task.spawn(function()if bS>0 then task.wait(bS)end;if bR~=b0 then return end;a_=false;if not Settings.Enabled or aZ then return end;if Settings.RightClickOnly and not aY then return end;local bT=bG()if bT and bT.Player==bQ then bf()end end)end;local function bU()if b1 or not aZ then return end;b1=true;b2=b2+1;local bR=b2;local bS=Settings.ReleaseDelay;task.spawn(function()local bV=os.clock()while true do if bR~=b2 then return end;if not Settings.Enabled then b1=false;bg()return end;if Settings.RightClickOnly and not aY then b1=false;bg()return end;if bG()then b1=false;return end;local bW=os.clock()-bV;if bW>=bS then break end;c.Heartbeat:Wait()end;if bR~=b2 then return end;b1=false;if not bG()then bg()end end)end;local function bX()if not Settings.Enabled then bN()bO()bg()b3=nil;return end;if Settings.RightClickOnly and not aY then bN()bO()bg()b3=nil;return end;local bT=bG()if bT then bO()if aZ then b3=bT.Player;return end;if b3~=bT.Player then bN()b3=bT.Player end;if not a_ then bP(b3)end;return end;bN()b3=nil;if aZ then bU()else bO()end end;c.RenderStepped:Connect(bX)local bY=false;local bZ=nil;local b_=nil;a7.InputBegan:Connect(function(ar)if ar.UserInputType==Enum.UserInputType.MouseButton1 then bY=true;bZ=ar.Position;b_=a3.Position end end)b.InputChanged:Connect(function(ar)if not bY then return end;if ar.UserInputType~=Enum.UserInputType.MouseMovement then return end;if not bZ or not b_ then return end;local c0=ar.Position-bZ;local c1=UDim2.new(b_.X.Scale,b_.X.Offset+c0.X,b_.Y.Scale,b_.Y.Offset+c0.Y)a4(c1)end)b.InputEnded:Connect(function(ar)if ar.UserInputType==Enum.UserInputType.MouseButton1 and bY then bY=false;if a3.Position then a6(a3.Position)a4(a3.Position)end;bZ=nil;b_=nil end end)local c2=not Settings.SilentExecute;local c3=false;local c4={}local function c5()c4={}local function c6(q)if q:IsA("GuiObject")then local c7={Object=q,BackgroundTransparency=q.BackgroundTransparency}if q:IsA("TextLabel")or q:IsA("TextButton")or q:IsA("TextBox")then c7.TextTransparency=q.TextTransparency;c7.TextStrokeTransparency=q.TextStrokeTransparency end;if q:IsA("ImageLabel")or q:IsA("ImageButton")then c7.ImageTransparency=q.ImageTransparency end;if q:IsA("ScrollingFrame")then c7.ScrollBarImageTransparency=q.ScrollBarImageTransparency end;table.insert(c4,c7)elseif q:IsA("UIStroke")then table.insert(c4,{Object=q,Transparency=q.Transparency})end end;c6(a3)for R,q in ipairs(a3:GetDescendants())do c6(q)end end;local function c8(c9,y)for R,c7 in ipairs(c4)do local q=c7.Object;if q and q.Parent then local z={}if c9 then if c7.BackgroundTransparency~=nil then z.BackgroundTransparency=1 end;if c7.TextTransparency~=nil then z.TextTransparency=1 end;if c7.TextStrokeTransparency~=nil then z.TextStrokeTransparency=1 end;if c7.ImageTransparency~=nil then z.ImageTransparency=1 end;if c7.ScrollBarImageTransparency~=nil then z.ScrollBarImageTransparency=1 end;if c7.Transparency~=nil then z.Transparency=1 end else if c7.BackgroundTransparency~=nil then z.BackgroundTransparency=c7.BackgroundTransparency end;if c7.TextTransparency~=nil then z.TextTransparency=c7.TextTransparency end;if c7.TextStrokeTransparency~=nil then z.TextStrokeTransparency=c7.TextStrokeTransparency end;if c7.ImageTransparency~=nil then z.ImageTransparency=c7.ImageTransparency end;if c7.ScrollBarImageTransparency~=nil then z.ScrollBarImageTransparency=c7.ScrollBarImageTransparency end;if c7.Transparency~=nil then z.Transparency=c7.Transparency end end;x(q,y,z)end end end;local function ca()if c3 then return end;c3=true;local cb=not c2;c2=cb;if c2 then a3.Visible=true;local cc=UDim2.new(a2.X.Scale,a2.X.Offset,a2.Y.Scale,a2.Y.Offset+8)a4(cc)c8(true,0)c8(false,0.16)x(a3,0.16,{Position=a2})task.delay(0.18,function()if c2 then a4(a2)c8(false,0)end;c3=false end)else c5()c8(true,0.14)local cd=UDim2.new(a2.X.Scale,a2.X.Offset,a2.Y.Scale,a2.Y.Offset+6)x(a3,0.14,{Position=cd})task.delay(0.15,function()if not c2 then a3.Visible=false;a4(a2)c8(false,0)end;c3=false end)end end;b.InputBegan:Connect(function(ar)for R,ce in ipairs(aF)do if ce:ProcessInput(ar)then return end end;local cf=au(ar)if as(ar,Settings.ActivationKey)then if not cf then aY=true end end;if as(ar,Settings.MenuKey)then if not cf then ca()end;return end end)b.InputEnded:Connect(function(ar)if as(ar,Settings.ActivationKey)then aY=false;if Settings.RightClickOnly then bN()bO()if aZ then bg()end;b3=nil end end end)workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()j=workspace.CurrentCamera end)h.CharacterAdded:Connect(function()task.wait(0.5)j=workspace.CurrentCamera;bN()bO()bg()b3=nil;aY=false end)a.PlayerRemoving:Connect(function(bQ)if b3==bQ then b3=nil;bN()end end)c5()if Settings.SilentExecute then a3.Visible=false else a3.Visible=true;a4(a2)c8(false,0)end;a1()bX()c:BindToRenderStep("TB_Controller",Enum.RenderPriority.Last.Value+100,function()a1()end)
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local HttpService = game:GetService("HttpService")
+local GuiService = game:GetService("GuiService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+
+local GuiParent = PlayerGui
+
+pcall(function()
+    if type(gethui) == "function" then
+        local hui = gethui()
+        if hui then
+            GuiParent = hui
+        end
+    end
+end)
+
+local function Create(className, properties, parent)
+    local object = Instance.new(className)
+
+    for property, value in pairs(properties) do
+        object[property] = value
+    end
+
+    object.Parent = parent
+    return object
+end
+
+local function AddCorner(object, radius)
+    Create("UICorner", {
+        CornerRadius = UDim.new(0, radius)
+    }, object)
+end
+
+local function AddStroke(object, transparency)
+    Create("UIStroke", {
+        Color = C.Border,
+        Thickness = 1,
+        Transparency = transparency or 0
+    }, object)
+end
+
+local function Tween(object, duration, properties, easingStyle, easingDirection)
+    if duration <= 0 then
+        for property, value in pairs(properties) do
+            object[property] = value
+        end
+
+        return nil
+    end
+
+    local info = TweenInfo.new(
+        duration,
+        easingStyle or Enum.EasingStyle.Quart,
+        easingDirection or Enum.EasingDirection.Out
+    )
+
+    local tween = TweenService:Create(object, info, properties)
+    tween:Play()
+
+    return tween
+end
+
+local function IsValidInputName(name)
+    if type(name) ~= "string" then
+        return false
+    end
+
+    if name == "MouseButton1"
+        or name == "MouseButton2"
+        or name == "MouseButton3" then
+        return true
+    end
+
+    local ok, keyCode = pcall(function()
+        return Enum.KeyCode[name]
+    end)
+
+    return ok and keyCode ~= nil
+end
+
+local function InputToName(input)
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == Enum.KeyCode.Unknown then
+            return nil
+        end
+
+        return input.KeyCode.Name
+    end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        return "MouseButton1"
+    end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        return "MouseButton2"
+    end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton3 then
+        return "MouseButton3"
+    end
+
+    return nil
+end
+
+local function InputMatches(input, configuredName)
+    return InputToName(input) == configuredName
+end
+
+local function PrettyInputName(name)
+    local aliases = {
+        MouseButton1 = "LMB",
+        MouseButton2 = "RMB",
+        MouseButton3 = "MMB",
+        RightControl = "RCTRL",
+        LeftControl = "LCTRL",
+        RightShift = "RSHIFT",
+        LeftShift = "LSHIFT",
+        RightAlt = "RALT",
+        LeftAlt = "LALT",
+        Return = "ENTER",
+        Backspace = "BACKSPACE",
+        Space = "SPACE",
+        Tab = "TAB",
+        Escape = "ESC",
+        CapsLock = "CAPSLOCK"
+    }
+
+    return aliases[name] or name
+end
+
+local function NormalizeAutoExecuteUrl(url)
+    if type(url) ~= "string" then
+        return nil
+    end
+
+    url = url:gsub("^%s+", ""):gsub("%s+$", "")
+
+    if url == "" then
+        return nil
+    end
+
+    local owner, repo, ref, path = url:match(
+        "^https://github%.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)$"
+    )
+
+    if owner and repo and ref and path then
+        return string.format(
+            "https://raw.githubusercontent.com/%s/%s/%s/%s",
+            owner,
+            repo,
+            ref,
+            path
+        )
+    end
+
+    return url
+end
+
+local function LoadConfig()
+    if type(readfile) ~= "function" then
+        return false
+    end
+
+    local fileContents
+
+    local readOk = pcall(function()
+        fileContents = readfile(CONFIG_FILE)
+    end)
+
+    if not readOk
+        or type(fileContents) ~= "string"
+        or fileContents == "" then
+        return false
+    end
+
+    local decodeOk, data = pcall(function()
+        return HttpService:JSONDecode(fileContents)
+    end)
+
+    if not decodeOk or type(data) ~= "table" then
+        return false
+    end
+
+    local booleanKeys = {
+        "Enabled",
+        "RightClickOnly",
+        "AutoExecute",
+        "SilentExecute",
+        "Head",
+        "Torso",
+        "Legs"
+    }
+
+    for _, key in ipairs(booleanKeys) do
+        if type(data[key]) == "boolean" then
+            Settings[key] = data[key]
+        end
+    end
+
+    if type(data.ReactionDelay) == "number" then
+        Settings.ReactionDelay = math.clamp(data.ReactionDelay, 0, 1)
+    end
+
+    if type(data.ReleaseDelay) == "number" then
+        Settings.ReleaseDelay = math.clamp(data.ReleaseDelay, 0, 1)
+    end
+
+    if IsValidInputName(data.MenuKey) then
+        Settings.MenuKey = data.MenuKey
+    end
+
+    if IsValidInputName(data.ActivationKey) then
+        Settings.ActivationKey = data.ActivationKey
+    end
+
+    return true
+end
+
+local SaveStatusButton = nil
+local SaveStatusToken = 0
+local SaveStatusActive = false
+
+local function ShowSaveStatus(text, success)
+    if not SaveStatusButton or not SaveStatusButton.Parent then
+        return
+    end
+
+    SaveStatusToken += 1
+
+    local token = SaveStatusToken
+    SaveStatusActive = true
+
+    SaveStatusButton.Text = text
+    SaveStatusButton.TextColor3 = C.White
+
+    Tween(SaveStatusButton, 0.12, {
+        BackgroundColor3 = success and C.Green or C.Red,
+        BackgroundTransparency = 0
+    })
+
+    task.delay(1.25, function()
+        if token ~= SaveStatusToken then
+            return
+        end
+
+        SaveStatusButton.Text = "Save Config"
+        SaveStatusActive = false
+
+        Tween(SaveStatusButton, 0.12, {
+            BackgroundColor3 = C.Panel2,
+            BackgroundTransparency = 0.08
+        })
+    end)
+end
+
+local function SaveConfig()
+    if type(writefile) ~= "function" then
+        warn("TB: writefile is not available.")
+        ShowSaveStatus("Save Failed", false)
+        return false
+    end
+
+    local data = {
+        Enabled = Settings.Enabled,
+        RightClickOnly = Settings.RightClickOnly,
+        AutoExecute = Settings.AutoExecute,
+        SilentExecute = Settings.SilentExecute,
+        Head = Settings.Head,
+        Torso = Settings.Torso,
+        Legs = Settings.Legs,
+        ReactionDelay = Settings.ReactionDelay,
+        ReleaseDelay = Settings.ReleaseDelay,
+        MenuKey = Settings.MenuKey,
+        ActivationKey = Settings.ActivationKey
+    }
+
+    local encodeOk, encoded = pcall(function()
+        return HttpService:JSONEncode(data)
+    end)
+
+    if not encodeOk then
+        warn("TB: failed to encode config:", encoded)
+        ShowSaveStatus("Save Failed", false)
+        return false
+    end
+
+    local writeOk, writeError = pcall(function()
+        writefile(CONFIG_FILE, encoded)
+    end)
+
+    if not writeOk then
+        warn("TB: failed to save config:", writeError)
+        ShowSaveStatus("Save Failed", false)
+        return false
+    end
+
+    ShowSaveStatus("Saved", true)
+    return true
+end
+
+local function GetQueueOnTeleport()
+    local queueFunction = queue_on_teleport or queueonteleport
+
+    if type(queueFunction) ~= "function"
+        and type(syn) == "table" then
+        queueFunction = syn.queue_on_teleport
+    end
+
+    return queueFunction
+end
+
+local function QueueAutoExecute()
+    if not Settings.AutoExecute then
+        return false
+    end
+
+    local rawUrl = NormalizeAutoExecuteUrl(AUTO_EXECUTE_URL)
+
+    if not rawUrl then
+        warn("TB: AUTO_EXECUTE_URL is empty or invalid.")
+        return false
+    end
+
+    local queueFunction = GetQueueOnTeleport()
+
+    if type(queueFunction) ~= "function" then
+        warn("TB: queue_on_teleport is unavailable.")
+        return false
+    end
+
+    if type(readfile) ~= "function" then
+        warn("TB: readfile is unavailable; Auto Execute cannot verify the config.")
+        return false
+    end
+
+    local queuedCode = string.format([[
+local HttpService = game:GetService("HttpService")
+
+local configOk, config = pcall(function()
+    return HttpService:JSONDecode(readfile(%q))
+end)
+
+if configOk and type(config) == "table" and config.AutoExecute then
+    local source = nil
+
+    local requestOk, remoteSource = pcall(function()
+        return game:HttpGet(%q)
+    end)
+
+    if requestOk
+        and type(remoteSource) == "string"
+        and remoteSource ~= "" then
+
+        source = remoteSource
+
+    elseif type(readfile) == "function" then
+
+        local localOk, localSource = pcall(function()
+            return readfile(%q)
+        end)
+
+        if localOk
+            and type(localSource) == "string"
+            and localSource ~= "" then
+
+            source = localSource
+        end
+    end
+
+    if type(source) ~= "string" or source == "" then
+        warn("TB: Auto Execute failed. The GitHub repository is private or unreachable, and the local script file was not found.")
+        return
+    end
+
+    local compileOk, fn = pcall(function()
+        return loadstring(source)
+    end)
+
+    if not compileOk or type(fn) ~= "function" then
+        warn("TB: Auto Execute failed to compile the script.", fn)
+        return
+    end
+
+    local runOk, runError = pcall(fn)
+
+    if not runOk then
+        warn("TB: Auto Execute runtime error:", runError)
+    end
+end
+]], CONFIG_FILE, rawUrl, LOCAL_AUTO_EXECUTE_FILE)
+
+    local queueOk, queueError = pcall(function()
+        queueFunction(queuedCode)
+    end)
+
+    if not queueOk then
+        warn("TB: failed to queue auto execute:", queueError)
+        return false
+    end
+
+    return true
+end
+
+LoadConfig()
+
+local ScreenGui = Create("ScreenGui", {
+    Name = "TB",
+    ResetOnSpawn = false,
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Global,
+    DisplayOrder = GUI_DISPLAY_ORDER
+}, GuiParent)
+
+local function KeepGuiAlive()
+    pcall(function()
+        if ScreenGui.Parent ~= GuiParent then
+            ScreenGui.Parent = GuiParent
+        end
+
+        ScreenGui.DisplayOrder = GUI_DISPLAY_ORDER
+        ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    end)
+end
+
+local PanelPosition = UDim2.new(
+    0.5,
+    -PANEL_WIDTH / 2,
+    0.5,
+    -PANEL_HEIGHT / 2 + 10
+)
+
+local Panel = Create("Frame", {
+    Size = UDim2.fromOffset(PANEL_WIDTH, PANEL_HEIGHT),
+    Position = PanelPosition,
+    BackgroundColor3 = C.Panel,
+    BackgroundTransparency = 0.08,
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    ZIndex = 2
+}, ScreenGui)
+
+AddCorner(Panel, 9)
+AddStroke(Panel, 0.25)
+
+local function SetPanelPosition(position)
+    Panel.Position = position
+end
+
+local function SetSavedPanelPosition(position)
+    PanelPosition = position
+end
+
+local Header = Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 38),
+    BackgroundColor3 = C.Panel2,
+    BackgroundTransparency = 0.05,
+    BorderSizePixel = 0,
+    Active = true,
+    ZIndex = 3
+}, Panel)
+
+AddCorner(Header, 9)
+
+Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 9),
+    Position = UDim2.new(0, 0, 1, -9),
+    BackgroundColor3 = C.Panel2,
+    BorderSizePixel = 0,
+    ZIndex = 3
+}, Header)
+
+Create("TextLabel", {
+    Size = UDim2.new(1, -25, 1, 0),
+    Position = UDim2.fromOffset(13, 0),
+    BackgroundTransparency = 1,
+    Text = "TB",
+    TextColor3 = C.White,
+    TextSize = 12,
+    Font = Enum.Font.GothamMedium,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 4
+}, Header)
+
+local EnabledDot = Create("Frame", {
+    Size = UDim2.fromOffset(6, 6),
+    Position = UDim2.new(1, -17, 0.5, -3),
+    BackgroundColor3 = Settings.Enabled and C.Green or C.DarkGray,
+    BorderSizePixel = 0,
+    ZIndex = 4
+}, Header)
+
+AddCorner(EnabledDot, 10)
+
+local Content = Create("Frame", {
+    Size = UDim2.new(1, -24, 1, -52),
+    Position = UDim2.fromOffset(12, 45),
+    BackgroundTransparency = 1,
+    ClipsDescendants = false,
+    ZIndex = 3
+}, Panel)
+
+local ToggleRefreshers = {}
+local SliderRefreshers = {}
+local KeyBinders = {}
+local ActiveCapture = nil
+local ActivationHeld = false
+
+local function SetToggleVisual(toggleButton, knob, settingKey, instant)
+    local enabled = Settings[settingKey] == true
+    local duration = instant and 0 or 0.18
+
+    Tween(toggleButton, duration, {
+        BackgroundColor3 = enabled
+            and C.Green
+            or Color3.fromRGB(65, 65, 65)
+    })
+
+    Tween(knob, duration, {
+        Position = enabled
+            and UDim2.new(1, -22, 0, 2)
+            or UDim2.fromOffset(2, 2)
+    })
+end
+
+local function CreateToggle(label, y, settingKey)
+    local row = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 40),
+        Position = UDim2.fromOffset(0, y),
+        BackgroundColor3 = C.Panel2,
+        BackgroundTransparency = 0.08,
+        BorderSizePixel = 0,
+        ZIndex = 3
+    }, Content)
+
+    AddCorner(row, 7)
+    AddStroke(row, 0.55)
+
+    Create("TextLabel", {
+        Size = UDim2.new(1, -65, 1, 0),
+        Position = UDim2.fromOffset(12, 0),
+        BackgroundTransparency = 1,
+        Text = label,
+        TextColor3 = C.White,
+        TextSize = 11,
+        Font = Enum.Font.GothamMedium,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 4
+    }, row)
+
+    local toggleButton = Create("TextButton", {
+        Size = UDim2.fromOffset(42, 24),
+        Position = UDim2.new(1, -54, 0.5, -12),
+        BackgroundColor3 = Color3.fromRGB(65, 65, 65),
+        BorderSizePixel = 0,
+        Text = "",
+        AutoButtonColor = false,
+        ZIndex = 5
+    }, row)
+
+    AddCorner(toggleButton, 20)
+
+    local knob = Create("Frame", {
+        Size = UDim2.fromOffset(20, 20),
+        Position = UDim2.fromOffset(2, 2),
+        BackgroundColor3 = Color3.fromRGB(245, 245, 245),
+        BorderSizePixel = 0,
+        ZIndex = 6
+    }, toggleButton)
+
+    AddCorner(knob, 20)
+
+    local function Refresh(instant)
+        SetToggleVisual(
+            toggleButton,
+            knob,
+            settingKey,
+            instant
+        )
+    end
+
+    toggleButton.MouseButton1Click:Connect(function()
+        Settings[settingKey] = not Settings[settingKey]
+
+        Refresh(false)
+
+        if settingKey == "Enabled" then
+            Tween(EnabledDot, 0.18, {
+                BackgroundColor3 = Settings.Enabled
+                    and C.Green
+                    or C.DarkGray
+            })
+        end
+
+        if settingKey == "AutoExecute" then
+            local saved = SaveConfig()
+
+            if Settings.AutoExecute and saved then
+                local queued = QueueAutoExecute()
+
+                if queued then
+                    ShowSaveStatus("Queued", true)
+                end
+            end
+        elseif settingKey == "SilentExecute" then
+            SaveConfig()
+        end
+    end)
+
+    ToggleRefreshers[settingKey] = Refresh
+    Refresh(true)
+end
+
+CreateToggle("Enabled", 0, "Enabled")
+CreateToggle("Hold Only", 45, "RightClickOnly")
+CreateToggle("Auto Execute", 90, "AutoExecute")
+CreateToggle("Silent Execute", 135, "SilentExecute")
+
+local function CancelKeyCapture()
+    if not ActiveCapture then
+        return
+    end
+
+    local capture = ActiveCapture
+    ActiveCapture = nil
+
+    if capture.button and capture.button.Parent then
+        capture.button.Text = PrettyInputName(
+            Settings[capture.settingKey]
+        )
+
+        capture.button.TextColor3 = C.White
+        capture.button.BackgroundColor3 = C.Panel
+    end
+end
+
+local function CompleteKeyCapture(input)
+    if not ActiveCapture then
+        return false
+    end
+
+    local capture = ActiveCapture
+    local name = InputToName(input)
+
+    if not name then
+        return true
+    end
+
+    if name == "Escape" then
+        CancelKeyCapture()
+        return true
+    end
+
+    if os.clock() - capture.startedAt < 0.12
+        and name == "MouseButton1" then
+        return true
+    end
+
+    Settings[capture.settingKey] = name
+    ActiveCapture = nil
+
+    capture.button.Text = PrettyInputName(name)
+    capture.button.TextColor3 = C.White
+    capture.button.BackgroundColor3 = C.Panel
+
+    SaveConfig()
+
+    return true
+end
+
+local function BeginKeyCapture(settingKey, button)
+    CancelKeyCapture()
+
+    ActiveCapture = {
+        settingKey = settingKey,
+        button = button,
+        startedAt = os.clock()
+    }
+
+    button.Text = "Press key / mouse..."
+    button.TextColor3 = C.Yellow
+
+    Tween(button, 0.08, {
+        BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+    })
+end
+
+local function CreateKeybind(label, y, settingKey)
+    local row = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 36),
+        Position = UDim2.fromOffset(0, y),
+        BackgroundColor3 = C.Panel2,
+        BackgroundTransparency = 0.08,
+        BorderSizePixel = 0,
+        ZIndex = 3
+    }, Content)
+
+    AddCorner(row, 7)
+    AddStroke(row, 0.55)
+
+    Create("TextLabel", {
+        Size = UDim2.new(0.5, 0, 1, 0),
+        Position = UDim2.fromOffset(12, 0),
+        BackgroundTransparency = 1,
+        Text = label,
+        TextColor3 = C.White,
+        TextSize = 10,
+        Font = Enum.Font.GothamMedium,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 4
+    }, row)
+
+    local button = Create("TextButton", {
+        Size = UDim2.fromOffset(112, 24),
+        Position = UDim2.new(1, -122, 0.5, -12),
+        BackgroundColor3 = C.Panel,
+        BorderSizePixel = 0,
+        Text = PrettyInputName(Settings[settingKey]),
+        TextColor3 = C.White,
+        TextSize = 9,
+        Font = Enum.Font.GothamMedium,
+        AutoButtonColor = false,
+        ZIndex = 5
+    }, row)
+
+    AddCorner(button, 6)
+    AddStroke(button, 0.45)
+
+    button.MouseEnter:Connect(function()
+        if ActiveCapture == nil
+            or ActiveCapture.button ~= button then
+
+            Tween(button, 0.1, {
+                BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+            })
+        end
+    end)
+
+    button.MouseLeave:Connect(function()
+        if ActiveCapture == nil
+            or ActiveCapture.button ~= button then
+
+            Tween(button, 0.1, {
+                BackgroundColor3 = C.Panel
+            })
+        end
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        BeginKeyCapture(settingKey, button)
+    end)
+
+    KeyBinders[settingKey] = {
+        Button = button,
+
+        Refresh = function()
+            if ActiveCapture
+                and ActiveCapture.button == button then
+                return
+            end
+
+            button.Text = PrettyInputName(Settings[settingKey])
+            button.TextColor3 = C.White
+            button.BackgroundColor3 = C.Panel
+        end
+    }
+end
+
+CreateKeybind("Menu Key", 185, "MenuKey")
+CreateKeybind("Activation Key", 226, "ActivationKey")
+
+Create("TextLabel", {
+    Size = UDim2.new(1, 0, 0, 17),
+    Position = UDim2.fromOffset(0, 271),
+    BackgroundTransparency = 1,
+    Text = "TARGET PARTS",
+    TextColor3 = C.Gray,
+    TextSize = 9,
+    Font = Enum.Font.GothamMedium,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 4
+}, Content)
+
+local TargetContainer = Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 36),
+    Position = UDim2.fromOffset(0, 289),
+    BackgroundTransparency = 1,
+    ZIndex = 3
+}, Content)
+
+local function CreateTargetToggle(label, x, settingKey)
+    local button = Create("TextButton", {
+        Size = UDim2.fromOffset(88, 34),
+        Position = UDim2.fromOffset(x, 0),
+        BackgroundColor3 = C.Panel2,
+        BackgroundTransparency = 0.1,
+        BorderSizePixel = 0,
+        Text = "",
+        AutoButtonColor = false,
+        ZIndex = 4
+    }, TargetContainer)
+
+    AddCorner(button, 6)
+    AddStroke(button, 0.6)
+
+    local checkBox = Create("Frame", {
+        Size = UDim2.fromOffset(15, 15),
+        Position = UDim2.fromOffset(9, 9),
+        BackgroundColor3 = C.Panel,
+        BorderSizePixel = 0,
+        ZIndex = 5
+    }, button)
+
+    AddCorner(checkBox, 4)
+    AddStroke(checkBox, 0.35)
+
+    local check = Create("TextLabel", {
+        Size = UDim2.fromScale(1, 1),
+        BackgroundTransparency = 1,
+        Text = "✓",
+        TextColor3 = C.Black,
+        TextSize = 11,
+        Font = Enum.Font.GothamBold,
+        TextTransparency = 1,
+        ZIndex = 6
+    }, checkBox)
+
+    Create("TextLabel", {
+        Size = UDim2.new(1, -30, 1, 0),
+        Position = UDim2.fromOffset(30, 0),
+        BackgroundTransparency = 1,
+        Text = label,
+        TextColor3 = C.White,
+        TextSize = 10,
+        Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 5
+    }, button)
+
+    local function Refresh(instant)
+        local duration = instant and 0 or 0.12
+
+        Tween(checkBox, duration, {
+            BackgroundColor3 = Settings[settingKey]
+                and C.White
+                or C.Panel
+        })
+
+        Tween(check, duration, {
+            TextTransparency = Settings[settingKey]
+                and 0
+                or 1
+        })
+    end
+
+    button.MouseEnter:Connect(function()
+        Tween(button, 0.1, {
+            BackgroundTransparency = 0
+        })
+    end)
+
+    button.MouseLeave:Connect(function()
+        Tween(button, 0.1, {
+            BackgroundTransparency = 0.1
+        })
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        Settings[settingKey] = not Settings[settingKey]
+        Refresh(false)
+    end)
+
+    ToggleRefreshers[settingKey] = Refresh
+    Refresh(true)
+end
+
+CreateTargetToggle("Head", 0, "Head")
+CreateTargetToggle("Torso", 94, "Torso")
+CreateTargetToggle("Legs", 188, "Legs")
+
+local function CreateSlider(label, y, settingKey)
+    local row = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 43),
+        Position = UDim2.fromOffset(0, y),
+        BackgroundTransparency = 1,
+        ZIndex = 3
+    }, Content)
+
+    Create("TextLabel", {
+        Size = UDim2.new(0.7, 0, 0, 17),
+        BackgroundTransparency = 1,
+        Text = label,
+        TextColor3 = C.White,
+        TextSize = 10,
+        Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 4
+    }, row)
+
+    local valueLabel = Create("TextLabel", {
+        Size = UDim2.new(0.3, 0, 0, 17),
+        Position = UDim2.new(0.7, 0, 0, 0),
+        BackgroundTransparency = 1,
+        Text = "",
+        TextColor3 = C.Gray,
+        TextSize = 10,
+        Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        ZIndex = 4
+    }, row)
+
+    local bar = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 4),
+        Position = UDim2.fromOffset(0, 27),
+        BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+        BorderSizePixel = 0,
+        Active = true,
+        ZIndex = 4
+    }, row)
+
+    AddCorner(bar, 4)
+
+    local fill = Create("Frame", {
+        Size = UDim2.new(Settings[settingKey], 0, 1, 0),
+        BackgroundColor3 = C.White,
+        BorderSizePixel = 0,
+        ZIndex = 5
+    }, bar)
+
+    AddCorner(fill, 4)
+
+    local knob = Create("Frame", {
+        Size = UDim2.fromOffset(12, 12),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(Settings[settingKey], 0, 0.5, 0),
+        BackgroundColor3 = C.White,
+        BorderSizePixel = 0,
+        Active = true,
+        ZIndex = 7
+    }, bar)
+
+    AddCorner(knob, 10)
+
+    local dragging = false
+
+    local function SetValue(value, animate)
+        value = math.clamp(value, 0, 1)
+        Settings[settingKey] = value
+        valueLabel.Text = string.format("%.2f s", value)
+
+        local duration = animate and 0.05 or 0
+
+        Tween(fill, duration, {
+            Size = UDim2.new(value, 0, 1, 0)
+        })
+
+        Tween(knob, duration, {
+            Position = UDim2.new(value, 0, 0.5, 0)
+        })
+    end
+
+    local function SetFromInput(input)
+        local width = bar.AbsoluteSize.X
+
+        if width <= 0 then
+            return
+        end
+
+        local value = (
+            input.Position.X - bar.AbsolutePosition.X
+        ) / width
+
+        SetValue(value, true)
+    end
+
+    local function BeginDrag(input)
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+            return
+        end
+
+        dragging = true
+        SetFromInput(input)
+    end
+
+    bar.InputBegan:Connect(BeginDrag)
+    knob.InputBegan:Connect(BeginDrag)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then
+            return
+        end
+
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            SetFromInput(input)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if dragging then
+                SaveConfig()
+            end
+
+            dragging = false
+        end
+    end)
+
+    SliderRefreshers[settingKey] = function()
+        SetValue(Settings[settingKey], false)
+    end
+
+    SetValue(Settings[settingKey], false)
+end
+
+CreateSlider("Reaction", 331, "ReactionDelay")
+CreateSlider("Release", 380, "ReleaseDelay")
+
+local SaveContainer = Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 38),
+    Position = UDim2.fromOffset(0, 433),
+    BackgroundTransparency = 1,
+    ZIndex = 3
+}, Content)
+
+SaveStatusButton = Create("TextButton", {
+    Size = UDim2.new(1, 0, 1, 0),
+    Position = UDim2.fromOffset(0, 0),
+    BackgroundColor3 = C.Panel2,
+    BackgroundTransparency = 0.08,
+    BorderSizePixel = 0,
+    Text = "Save Config",
+    TextColor3 = C.White,
+    TextSize = 10,
+    Font = Enum.Font.GothamMedium,
+    AutoButtonColor = false,
+    ZIndex = 4
+}, SaveContainer)
+
+AddCorner(SaveStatusButton, 7)
+AddStroke(SaveStatusButton, 0.55)
+
+SaveStatusButton.MouseEnter:Connect(function()
+    if SaveStatusActive then
+        return
+    end
+
+    Tween(SaveStatusButton, 0.1, {
+        BackgroundTransparency = 0
+    })
+end)
+
+SaveStatusButton.MouseLeave:Connect(function()
+    if SaveStatusActive then
+        return
+    end
+
+    Tween(SaveStatusButton, 0.1, {
+        BackgroundTransparency = 0.08
+    })
+end)
+
+SaveStatusButton.MouseButton1Click:Connect(function()
+    SaveConfig()
+end)
+
+local MouseButtonPressed = false
+local ScriptMouseButtonDown = false
+
+local function IsMouseOverGui(input)
+    if input.UserInputType ~= Enum.UserInputType.MouseButton1
+        and input.UserInputType ~= Enum.UserInputType.MouseButton2
+        and input.UserInputType ~= Enum.UserInputType.MouseButton3 then
+        return false
+    end
+
+    local objects
+
+    local ok = pcall(function()
+        objects = GuiService:GetGuiObjectsAtPosition(
+            input.Position.X,
+            input.Position.Y
+        )
+    end)
+
+    if not ok or type(objects) ~= "table" then
+        return false
+    end
+
+    for _, guiObject in ipairs(objects) do
+        if guiObject
+            and guiObject:IsDescendantOf(ScreenGui) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function SendMouseButton(isDown)
+    local ok, err = pcall(function()
+        VirtualInputManager:SendMouseButtonEvent(
+            0,
+            0,
+            0,
+            isDown,
+            game,
+            0
+        )
+    end)
+
+    if not ok then
+        warn("TB mouse button failed:", err)
+        return false
+    end
+
+    return true
+end
+
+local function PressMouseButton()
+    if MouseButtonPressed then
+        return true
+    end
+
+    if SendMouseButton(true) then
+        MouseButtonPressed = true
+        return true
+    end
+
+    return false
+end
+
+local function ReleaseMouseButton()
+    if not MouseButtonPressed or ScriptMouseButtonDown then
+        return
+    end
+
+    SendMouseButton(false)
+    MouseButtonPressed = false
+end
+
+local RaycastParamsObject = RaycastParams.new()
+RaycastParamsObject.FilterType = Enum.RaycastFilterType.Exclude
+RaycastParamsObject.IgnoreWater = true
+
+local function GetViewportCenter()
+    Camera = workspace.CurrentCamera
+
+    if not Camera then
+        return nil, nil
+    end
+
+    local viewportSize = Camera.ViewportSize
+
+    return viewportSize.X * 0.5, viewportSize.Y * 0.5
+end
+
+local function GetSelectedParts(character)
+    local parts = {}
+
+    local function AddPart(name, groupName)
+        local part = character:FindFirstChild(name)
+
+        if part and part:IsA("BasePart") then
+            table.insert(parts, {
+                Part = part,
+                Name = groupName
+            })
+        end
+    end
+
+    if Settings.Head then
+        AddPart("Head", "Head")
+    end
+
+    if Settings.Torso then
+        AddPart("UpperTorso", "Torso")
+        AddPart("LowerTorso", "Torso")
+        AddPart("HumanoidRootPart", "Torso")
+        AddPart("Torso", "Torso")
+    end
+
+    if Settings.Legs then
+        AddPart("LeftUpperLeg", "Legs")
+        AddPart("RightUpperLeg", "Legs")
+        AddPart("LeftLowerLeg", "Legs")
+        AddPart("RightLowerLeg", "Legs")
+        AddPart("LeftFoot", "Legs")
+        AddPart("RightFoot", "Legs")
+        AddPart("Left Leg", "Legs")
+        AddPart("Right Leg", "Legs")
+    end
+
+    return parts
+end
+
+local function PartToGroup(part)
+    if not part then
+        return nil
+    end
+
+    local name = part.Name
+
+    if name == "Head" then
+        return "Head"
+    end
+
+    if name == "UpperTorso"
+        or name == "LowerTorso"
+        or name == "Torso"
+        or name == "HumanoidRootPart" then
+
+        return "Torso"
+    end
+
+    if name == "LeftUpperLeg"
+        or name == "RightUpperLeg"
+        or name == "LeftLowerLeg"
+        or name == "RightLowerLeg"
+        or name == "LeftFoot"
+        or name == "RightFoot"
+        or name == "Left Leg"
+        or name == "Right Leg" then
+
+        return "Legs"
+    end
+
+    return nil
+end
+
+local function IsGroupEnabled(groupName)
+    if groupName == "Head" then
+        return Settings.Head
+    end
+
+    if groupName == "Torso" then
+        return Settings.Torso
+    end
+
+    if groupName == "Legs" then
+        return Settings.Legs
+    end
+
+    return false
+end
+
+local function IsPartUnderCursor(part)
+    local centerX, centerY = GetViewportCenter()
+
+    if not centerX
+        or not part
+        or not part:IsA("BasePart")
+        or not part.Parent then
+
+        return false
+    end
+
+    local halfSize = part.Size * 0.5
+
+    local minX = math.huge
+    local minY = math.huge
+    local maxX = -math.huge
+    local maxY = -math.huge
+    local anyVisibleCorner = false
+
+    for sx = -1, 1, 2 do
+        for sy = -1, 1, 2 do
+            for sz = -1, 1, 2 do
+                local worldCorner = part.CFrame:PointToWorldSpace(
+                    Vector3.new(
+                        halfSize.X * sx,
+                        halfSize.Y * sy,
+                        halfSize.Z * sz
+                    )
+                )
+
+                local screenPoint = Camera:WorldToViewportPoint(worldCorner)
+
+                if screenPoint.Z > 0 then
+                    anyVisibleCorner = true
+
+                    minX = math.min(minX, screenPoint.X)
+                    minY = math.min(minY, screenPoint.Y)
+                    maxX = math.max(maxX, screenPoint.X)
+                    maxY = math.max(maxY, screenPoint.Y)
+                end
+            end
+        end
+    end
+
+    if not anyVisibleCorner then
+        return false
+    end
+
+    return centerX >= minX
+        and centerX <= maxX
+        and centerY >= minY
+        and centerY <= maxY
+end
+
+local function GetCenterRaycast()
+    local centerX, centerY = GetViewportCenter()
+
+    if not centerX then
+        return nil
+    end
+
+    local ray = Camera:ViewportPointToRay(
+        centerX,
+        centerY
+    )
+
+    RaycastParamsObject.FilterDescendantsInstances = {
+        LocalPlayer.Character
+    }
+
+    return workspace:Raycast(
+        ray.Origin,
+        ray.Direction * 10000,
+        RaycastParamsObject
+    )
+end
+
+local function HasLineOfSight(character, part)
+    if not character
+        or not part
+        or not part.Parent then
+
+        return false
+    end
+
+    local cameraPosition = Camera.CFrame.Position
+    local direction = part.Position - cameraPosition
+
+    if direction.Magnitude <= 0.001 then
+        return true
+    end
+
+    RaycastParamsObject.FilterDescendantsInstances = {
+        LocalPlayer.Character
+    }
+
+    local hit = workspace:Raycast(
+        cameraPosition,
+        direction,
+        RaycastParamsObject
+    )
+
+    if not hit then
+        return true
+    end
+
+    return hit.Instance:IsDescendantOf(character)
+end
+
+local function BuildTarget(player, character, part, partGroup)
+    return {
+        Player = player,
+        Character = character,
+        Part = part,
+        PartName = partGroup
+    }
+end
+
+local function FindTarget()
+    Camera = workspace.CurrentCamera
+
+    if not Camera then
+        return nil
+    end
+
+    local centerHit = GetCenterRaycast()
+
+    if centerHit and centerHit.Instance then
+        local hitPart = centerHit.Instance
+
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer
+                and player.Character then
+
+                local character = player.Character
+                local humanoid =
+                    character:FindFirstChildOfClass("Humanoid")
+
+                if humanoid
+                    and humanoid.Health > 0
+                    and hitPart:IsDescendantOf(character) then
+
+                    local directGroup = PartToGroup(hitPart)
+
+                    if directGroup
+                        and IsGroupEnabled(directGroup) then
+
+                        return BuildTarget(
+                            player,
+                            character,
+                            hitPart,
+                            directGroup
+                        )
+                    end
+
+                    for _, entry in ipairs(
+                        GetSelectedParts(character)
+                    ) do
+
+                        local part = entry.Part
+
+                        if part
+                            and part.Parent
+                            and IsPartUnderCursor(part)
+                            and HasLineOfSight(character, part) then
+
+                            return BuildTarget(
+                                player,
+                                character,
+                                part,
+                                entry.Name
+                            )
+                        end
+                    end
+
+                    return nil
+                end
+            end
+        end
+
+        local model = hitPart:FindFirstAncestorOfClass("Model")
+
+        if model
+            and Players:GetPlayerFromCharacter(model) then
+
+            return nil
+        end
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer
+            and player.Character then
+
+            local character = player.Character
+            local humanoid =
+                character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid and humanoid.Health > 0 then
+                for _, entry in ipairs(
+                    GetSelectedParts(character)
+                ) do
+
+                    local part = entry.Part
+
+                    if part
+                        and part.Parent
+                        and IsPartUnderCursor(part)
+                        and HasLineOfSight(character, part) then
+
+                        return BuildTarget(
+                            player,
+                            character,
+                            part,
+                            entry.Name
+                        )
+                    end
+                end
+            end
+        end
+    end
+
+    return nil
+end
+
+local PendingShotToken = 0
+local ReleaseToken = 0
+local LastTargetPlayer = nil
+
+local function CancelPendingShot()
+    PendingShotToken += 1
+end
+
+local function CancelRelease()
+    ReleaseToken += 1
+end
+
+local function ScheduleRelease()
+    if not MouseButtonPressed then
+        return
+    end
+
+    ReleaseToken += 1
+
+    local token = ReleaseToken
+    local delayTime = Settings.ReleaseDelay
+
+    task.spawn(function()
+        local startedAt = os.clock()
+
+        while true do
+            if token ~= ReleaseToken then
+                return
+            end
+
+            if not Settings.Enabled then
+                ReleaseMouseButton()
+                return
+            end
+
+            if Settings.RightClickOnly
+                and not ActivationHeld then
+
+                ReleaseMouseButton()
+                return
+            end
+
+            if FindTarget() then
+                return
+            end
+
+            if os.clock() - startedAt >= delayTime then
+                break
+            end
+
+            RunService.Heartbeat:Wait()
+        end
+
+        if token ~= ReleaseToken then
+            return
+        end
+
+        if not FindTarget() then
+            ReleaseMouseButton()
+        end
+    end)
+end
+
+local function UpdateTriggerbot()
+    if not Settings.Enabled then
+        CancelPendingShot()
+        CancelRelease()
+        ReleaseMouseButton()
+        LastTargetPlayer = nil
+        return
+    end
+
+    if Settings.RightClickOnly
+        and not ActivationHeld then
+
+        CancelPendingShot()
+        CancelRelease()
+        ReleaseMouseButton()
+        LastTargetPlayer = nil
+        return
+    end
+
+    local target = FindTarget()
+
+    if target then
+        CancelRelease()
+
+        if MouseButtonPressed then
+            LastTargetPlayer = target.Player
+            return
+        end
+
+        if LastTargetPlayer ~= target.Player then
+            PendingShotToken += 1
+
+            local token = PendingShotToken
+            local player = target.Player
+            local delayTime = Settings.ReactionDelay
+
+            task.spawn(function()
+                if delayTime > 0 then
+                    task.wait(delayTime)
+                end
+
+                if token ~= PendingShotToken then
+                    return
+                end
+
+                if not Settings.Enabled
+                    or MouseButtonPressed then
+
+                    return
+                end
+
+                if Settings.RightClickOnly
+                    and not ActivationHeld then
+
+                    return
+                end
+
+                local latestTarget = FindTarget()
+
+                if latestTarget
+                    and latestTarget.Player == player then
+
+                    PressMouseButton()
+                end
+            end)
+        end
+
+        LastTargetPlayer = target.Player
+        return
+    end
+
+    CancelPendingShot()
+    LastTargetPlayer = nil
+
+    if MouseButtonPressed then
+        ScheduleRelease()
+    end
+end
+
+RunService.RenderStepped:Connect(UpdateTriggerbot)
+
+local DraggingPanel = false
+local DragStart = nil
+local PanelStart = nil
+
+Header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        DraggingPanel = true
+        DragStart = input.Position
+        PanelStart = Panel.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if not DraggingPanel then
+        return
+    end
+
+    if input.UserInputType ~= Enum.UserInputType.MouseMovement then
+        return
+    end
+
+    if not DragStart or not PanelStart then
+        return
+    end
+
+    local delta = input.Position - DragStart
+
+    SetPanelPosition(UDim2.new(
+        PanelStart.X.Scale,
+        PanelStart.X.Offset + delta.X,
+        PanelStart.Y.Scale,
+        PanelStart.Y.Offset + delta.Y
+    ))
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        and DraggingPanel then
+
+        DraggingPanel = false
+        SetSavedPanelPosition(Panel.Position)
+
+        DragStart = nil
+        PanelStart = nil
+    end
+end)
+
+local SilentVisible = not Settings.SilentExecute
+local AnimatingVisibility = false
+local OriginalGuiState = {}
+
+local function SavePanelVisualState()
+    OriginalGuiState = {}
+
+    local function Record(object)
+        if object:IsA("GuiObject") then
+            local entry = {
+                Object = object,
+                BackgroundTransparency = object.BackgroundTransparency
+            }
+
+            if object:IsA("TextLabel")
+                or object:IsA("TextButton")
+                or object:IsA("TextBox") then
+
+                entry.TextTransparency =
+                    object.TextTransparency
+
+                entry.TextStrokeTransparency =
+                    object.TextStrokeTransparency
+            end
+
+            if object:IsA("ImageLabel")
+                or object:IsA("ImageButton") then
+
+                entry.ImageTransparency =
+                    object.ImageTransparency
+            end
+
+            if object:IsA("ScrollingFrame") then
+                entry.ScrollBarImageTransparency =
+                    object.ScrollBarImageTransparency
+            end
+
+            table.insert(OriginalGuiState, entry)
+
+        elseif object:IsA("UIStroke") then
+            table.insert(OriginalGuiState, {
+                Object = object,
+                Transparency = object.Transparency
+            })
+        end
+    end
+
+    Record(Panel)
+
+    for _, descendant in ipairs(
+        Panel:GetDescendants()
+    ) do
+        Record(descendant)
+    end
+end
+
+local function SetPanelTransparency(hidden, duration)
+    for _, entry in ipairs(OriginalGuiState) do
+        local object = entry.Object
+
+        if object and object.Parent then
+            local goal = {}
+
+            if hidden then
+                if entry.BackgroundTransparency ~= nil then
+                    goal.BackgroundTransparency = 1
+                end
+
+                if entry.TextTransparency ~= nil then
+                    goal.TextTransparency = 1
+                end
+
+                if entry.TextStrokeTransparency ~= nil then
+                    goal.TextStrokeTransparency = 1
+                end
+
+                if entry.ImageTransparency ~= nil then
+                    goal.ImageTransparency = 1
+                end
+
+                if entry.ScrollBarImageTransparency ~= nil then
+                    goal.ScrollBarImageTransparency = 1
+                end
+
+                if entry.Transparency ~= nil then
+                    goal.Transparency = 1
+                end
+
+            else
+                if entry.BackgroundTransparency ~= nil then
+                    goal.BackgroundTransparency =
+                        entry.BackgroundTransparency
+                end
+
+                if entry.TextTransparency ~= nil then
+                    goal.TextTransparency =
+                        entry.TextTransparency
+                end
+
+                if entry.TextStrokeTransparency ~= nil then
+                    goal.TextStrokeTransparency =
+                        entry.TextStrokeTransparency
+                end
+
+                if entry.ImageTransparency ~= nil then
+                    goal.ImageTransparency =
+                        entry.ImageTransparency
+                end
+
+                if entry.ScrollBarImageTransparency ~= nil then
+                    goal.ScrollBarImageTransparency =
+                        entry.ScrollBarImageTransparency
+                end
+
+                if entry.Transparency ~= nil then
+                    goal.Transparency =
+                        entry.Transparency
+                end
+            end
+
+            if next(goal) then
+                Tween(object, duration, goal)
+            end
+        end
+    end
+end
+
+local function ToggleMenu()
+    if AnimatingVisibility then
+        return
+    end
+
+    AnimatingVisibility = true
+    SilentVisible = not SilentVisible
+
+    if SilentVisible then
+        Panel.Visible = true
+
+        local hiddenStart = UDim2.new(
+            PanelPosition.X.Scale,
+            PanelPosition.X.Offset,
+            PanelPosition.Y.Scale,
+            PanelPosition.Y.Offset + 8
+        )
+
+        SetPanelPosition(hiddenStart)
+        SetPanelTransparency(true, 0)
+        SetPanelTransparency(false, 0.16)
+
+        Tween(Panel, 0.16, {
+            Position = PanelPosition
+        })
+
+        task.delay(0.18, function()
+            if SilentVisible then
+                SetPanelPosition(PanelPosition)
+                SetPanelTransparency(false, 0)
+            end
+
+            AnimatingVisibility = false
+        end)
+
+    else
+        SavePanelVisualState()
+        SetPanelTransparency(true, 0.14)
+
+        local hiddenPosition = UDim2.new(
+            PanelPosition.X.Scale,
+            PanelPosition.X.Offset,
+            PanelPosition.Y.Scale,
+            PanelPosition.Y.Offset + 6
+        )
+
+        Tween(Panel, 0.14, {
+            Position = hiddenPosition
+        })
+
+        task.delay(0.15, function()
+            if not SilentVisible then
+                Panel.Visible = false
+                SetPanelPosition(PanelPosition)
+                SetPanelTransparency(false, 0)
+            end
+
+            AnimatingVisibility = false
+        end)
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if ActiveCapture then
+        CompleteKeyCapture(input)
+        return
+    end
+
+    local overGui = IsMouseOverGui(input)
+
+    if InputMatches(input, Settings.ActivationKey)
+        and not overGui
+        and not gameProcessed then
+
+        ActivationHeld = true
+    end
+
+    if InputMatches(input, Settings.MenuKey)
+        and not overGui
+        and not gameProcessed then
+
+        ToggleMenu()
+        return
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if InputMatches(input, Settings.ActivationKey) then
+        ActivationHeld = false
+
+        if Settings.RightClickOnly then
+            CancelPendingShot()
+            CancelRelease()
+            ReleaseMouseButton()
+            LastTargetPlayer = nil
+        end
+    end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        ScriptMouseButtonDown = false
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        and IsMouseOverGui(input) then
+
+        ScriptMouseButtonDown = true
+    end
+end)
+
+workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+    Camera = workspace.CurrentCamera
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(0.5)
+
+    Camera = workspace.CurrentCamera
+
+    CancelPendingShot()
+    CancelRelease()
+    ReleaseMouseButton()
+
+    LastTargetPlayer = nil
+    ActivationHeld = false
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    if LastTargetPlayer == player then
+        LastTargetPlayer = nil
+        CancelPendingShot()
+        CancelRelease()
+    end
+end)
+
+if Settings.SilentExecute then
+    Panel.Visible = false
+else
+    Panel.Visible = true
+    SetPanelPosition(PanelPosition)
+end
+
+SavePanelVisualState()
+KeepGuiAlive()
+
+RunService:BindToRenderStep(
+    "TB_Controller",
+    Enum.RenderPriority.Last.Value + 100,
+    function()
+        KeepGuiAlive()
+    end
+)
+
+if Settings.AutoExecute then
+    QueueAutoExecute()
+end
