@@ -1,5 +1,6 @@
-local CONFIG_FILE = "DetectorUI_Config.json"
-local AUTO_EXECUTE_URL = ""
+-- 設定・定義（ここを編集）
+local CONFIG_FILE = "TBUI_Config.json"
+local AUTO_EXECUTE_URL = "https://github.com/KJJJpypr/kujohubtriggerbot/blob/main/kujohubtriggerbot.luau"
 local PANEL_WIDTH, PANEL_HEIGHT = 292, 536
 local GUI_DISPLAY_ORDER = 2147483647
 
