@@ -44,7 +44,6 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
 
 local GuiParent = PlayerGui
-
 pcall(function()
     if type(gethui) == "function" then
         local hui = gethui()
@@ -56,11 +55,9 @@ end)
 
 local function Create(className, properties, parent)
     local object = Instance.new(className)
-
     for property, value in pairs(properties) do
         object[property] = value
     end
-
     object.Parent = parent
     return object
 end
@@ -84,7 +81,6 @@ local function Tween(object, duration, properties, easingStyle, easingDirection)
         for property, value in pairs(properties) do
             object[property] = value
         end
-
         return nil
     end
 
@@ -96,7 +92,6 @@ local function Tween(object, duration, properties, easingStyle, easingDirection)
 
     local tween = TweenService:Create(object, info, properties)
     tween:Play()
-
     return tween
 end
 
@@ -105,9 +100,7 @@ local function IsValidInputName(name)
         return false
     end
 
-    if name == "MouseButton1"
-        or name == "MouseButton2"
-        or name == "MouseButton3" then
+    if name == "MouseButton1" or name == "MouseButton2" or name == "MouseButton3" then
         return true
     end
 
@@ -123,7 +116,6 @@ local function InputToName(input)
         if input.KeyCode == Enum.KeyCode.Unknown then
             return nil
         end
-
         return input.KeyCode.Name
     end
 
@@ -174,15 +166,11 @@ local function NormalizeAutoExecuteUrl(url)
     end
 
     url = url:gsub("^%s+", ""):gsub("%s+$", "")
-
     if url == "" then
         return nil
     end
 
-    local owner, repo, ref, path = url:match(
-        "^https://github%.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)$"
-    )
-
+    local owner, repo, ref, path = url:match("^https://github%.com/([^/]+)/([^/]+)/blob/([^/]+)/(.+)$")
     if owner and repo and ref and path then
         return string.format(
             "https://raw.githubusercontent.com/%s/%s/%s/%s",
@@ -202,14 +190,11 @@ local function LoadConfig()
     end
 
     local fileContents
-
     local readOk = pcall(function()
         fileContents = readfile(CONFIG_FILE)
     end)
 
-    if not readOk
-        or type(fileContents) ~= "string"
-        or fileContents == "" then
+    if not readOk or type(fileContents) ~= "string" or fileContents == "" then
         return false
     end
 
@@ -266,13 +251,11 @@ local function ShowSaveStatus(text, success)
     end
 
     SaveStatusToken += 1
-
     local token = SaveStatusToken
     SaveStatusActive = true
 
     SaveStatusButton.Text = text
     SaveStatusButton.TextColor3 = C.White
-
     Tween(SaveStatusButton, 0.12, {
         BackgroundColor3 = success and C.Green or C.Red,
         BackgroundTransparency = 0
@@ -285,7 +268,6 @@ local function ShowSaveStatus(text, success)
 
         SaveStatusButton.Text = "Save Config"
         SaveStatusActive = false
-
         Tween(SaveStatusButton, 0.12, {
             BackgroundColor3 = C.Panel2,
             BackgroundTransparency = 0.08
@@ -341,8 +323,7 @@ end
 local function GetQueueOnTeleport()
     local queueFunction = queue_on_teleport or queueonteleport
 
-    if type(queueFunction) ~= "function"
-        and type(syn) == "table" then
+    if type(queueFunction) ~= "function" and type(syn) == "table" then
         queueFunction = syn.queue_on_teleport
     end
 
@@ -355,14 +336,12 @@ local function QueueAutoExecute()
     end
 
     local rawUrl = NormalizeAutoExecuteUrl(AUTO_EXECUTE_URL)
-
     if not rawUrl then
         warn("TB: AUTO_EXECUTE_URL is empty or invalid.")
         return false
     end
 
     local queueFunction = GetQueueOnTeleport()
-
     if type(queueFunction) ~= "function" then
         warn("TB: queue_on_teleport is unavailable.")
         return false
@@ -373,36 +352,24 @@ local function QueueAutoExecute()
         return false
     end
 
-    local queuedCode = string.format([[
-local HttpService = game:GetService("HttpService")
-
+    local queuedCode = string.format([[local HttpService = game:GetService("HttpService")
 local configOk, config = pcall(function()
     return HttpService:JSONDecode(readfile(%q))
 end)
 
 if configOk and type(config) == "table" and config.AutoExecute then
     local source = nil
-
     local requestOk, remoteSource = pcall(function()
         return game:HttpGet(%q)
     end)
 
-    if requestOk
-        and type(remoteSource) == "string"
-        and remoteSource ~= "" then
-
+    if requestOk and type(remoteSource) == "string" and remoteSource ~= "" then
         source = remoteSource
-
     elseif type(readfile) == "function" then
-
         local localOk, localSource = pcall(function()
             return readfile(%q)
         end)
-
-        if localOk
-            and type(localSource) == "string"
-            and localSource ~= "" then
-
+        if localOk and type(localSource) == "string" and localSource ~= "" then
             source = localSource
         end
     end
@@ -422,12 +389,10 @@ if configOk and type(config) == "table" and config.AutoExecute then
     end
 
     local runOk, runError = pcall(fn)
-
     if not runOk then
         warn("TB: Auto Execute runtime error:", runError)
     end
-end
-]], CONFIG_FILE, rawUrl, LOCAL_AUTO_EXECUTE_FILE)
+end]], CONFIG_FILE, rawUrl, LOCAL_AUTO_EXECUTE_FILE)
 
     local queueOk, queueError = pcall(function()
         queueFunction(queuedCode)
@@ -456,7 +421,6 @@ local function KeepGuiAlive()
         if ScreenGui.Parent ~= GuiParent then
             ScreenGui.Parent = GuiParent
         end
-
         ScreenGui.DisplayOrder = GUI_DISPLAY_ORDER
         ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     end)
@@ -478,7 +442,6 @@ local Panel = Create("Frame", {
     ClipsDescendants = true,
     ZIndex = 2
 }, ScreenGui)
-
 AddCorner(Panel, 9)
 AddStroke(Panel, 0.25)
 
@@ -498,7 +461,6 @@ local Header = Create("Frame", {
     Active = true,
     ZIndex = 3
 }, Panel)
-
 AddCorner(Header, 9)
 
 Create("Frame", {
@@ -528,7 +490,6 @@ local EnabledDot = Create("Frame", {
     BorderSizePixel = 0,
     ZIndex = 4
 }, Header)
-
 AddCorner(EnabledDot, 10)
 
 local Content = Create("Frame", {
@@ -550,15 +511,11 @@ local function SetToggleVisual(toggleButton, knob, settingKey, instant)
     local duration = instant and 0 or 0.18
 
     Tween(toggleButton, duration, {
-        BackgroundColor3 = enabled
-            and C.Green
-            or Color3.fromRGB(65, 65, 65)
+        BackgroundColor3 = enabled and C.Green or Color3.fromRGB(65, 65, 65)
     })
 
     Tween(knob, duration, {
-        Position = enabled
-            and UDim2.new(1, -22, 0, 2)
-            or UDim2.fromOffset(2, 2)
+        Position = enabled and UDim2.new(1, -22, 0, 2) or UDim2.fromOffset(2, 2)
     })
 end
 
@@ -571,7 +528,6 @@ local function CreateToggle(label, y, settingKey)
         BorderSizePixel = 0,
         ZIndex = 3
     }, Content)
-
     AddCorner(row, 7)
     AddStroke(row, 0.55)
 
@@ -596,7 +552,6 @@ local function CreateToggle(label, y, settingKey)
         AutoButtonColor = false,
         ZIndex = 5
     }, row)
-
     AddCorner(toggleButton, 20)
 
     local knob = Create("Frame", {
@@ -606,37 +561,26 @@ local function CreateToggle(label, y, settingKey)
         BorderSizePixel = 0,
         ZIndex = 6
     }, toggleButton)
-
     AddCorner(knob, 20)
 
     local function Refresh(instant)
-        SetToggleVisual(
-            toggleButton,
-            knob,
-            settingKey,
-            instant
-        )
+        SetToggleVisual(toggleButton, knob, settingKey, instant)
     end
 
     toggleButton.MouseButton1Click:Connect(function()
         Settings[settingKey] = not Settings[settingKey]
-
         Refresh(false)
 
         if settingKey == "Enabled" then
             Tween(EnabledDot, 0.18, {
-                BackgroundColor3 = Settings.Enabled
-                    and C.Green
-                    or C.DarkGray
+                BackgroundColor3 = Settings.Enabled and C.Green or C.DarkGray
             })
         end
 
         if settingKey == "AutoExecute" then
             local saved = SaveConfig()
-
             if Settings.AutoExecute and saved then
                 local queued = QueueAutoExecute()
-
                 if queued then
                     ShowSaveStatus("Queued", true)
                 end
@@ -664,10 +608,7 @@ local function CancelKeyCapture()
     ActiveCapture = nil
 
     if capture.button and capture.button.Parent then
-        capture.button.Text = PrettyInputName(
-            Settings[capture.settingKey]
-        )
-
+        capture.button.Text = PrettyInputName(Settings[capture.settingKey])
         capture.button.TextColor3 = C.White
         capture.button.BackgroundColor3 = C.Panel
     end
@@ -690,8 +631,7 @@ local function CompleteKeyCapture(input)
         return true
     end
 
-    if os.clock() - capture.startedAt < 0.12
-        and name == "MouseButton1" then
+    if os.clock() - capture.startedAt < 0.12 and name == "MouseButton1" then
         return true
     end
 
@@ -703,7 +643,6 @@ local function CompleteKeyCapture(input)
     capture.button.BackgroundColor3 = C.Panel
 
     SaveConfig()
-
     return true
 end
 
@@ -718,7 +657,6 @@ local function BeginKeyCapture(settingKey, button)
 
     button.Text = "Press key / mouse..."
     button.TextColor3 = C.Yellow
-
     Tween(button, 0.08, {
         BackgroundColor3 = Color3.fromRGB(26, 26, 26)
     })
@@ -733,7 +671,6 @@ local function CreateKeybind(label, y, settingKey)
         BorderSizePixel = 0,
         ZIndex = 3
     }, Content)
-
     AddCorner(row, 7)
     AddStroke(row, 0.55)
 
@@ -761,14 +698,11 @@ local function CreateKeybind(label, y, settingKey)
         AutoButtonColor = false,
         ZIndex = 5
     }, row)
-
     AddCorner(button, 6)
     AddStroke(button, 0.45)
 
     button.MouseEnter:Connect(function()
-        if ActiveCapture == nil
-            or ActiveCapture.button ~= button then
-
+        if ActiveCapture == nil or ActiveCapture.button ~= button then
             Tween(button, 0.1, {
                 BackgroundColor3 = Color3.fromRGB(22, 22, 22)
             })
@@ -776,9 +710,7 @@ local function CreateKeybind(label, y, settingKey)
     end)
 
     button.MouseLeave:Connect(function()
-        if ActiveCapture == nil
-            or ActiveCapture.button ~= button then
-
+        if ActiveCapture == nil or ActiveCapture.button ~= button then
             Tween(button, 0.1, {
                 BackgroundColor3 = C.Panel
             })
@@ -791,13 +723,10 @@ local function CreateKeybind(label, y, settingKey)
 
     KeyBinders[settingKey] = {
         Button = button,
-
         Refresh = function()
-            if ActiveCapture
-                and ActiveCapture.button == button then
+            if ActiveCapture and ActiveCapture.button == button then
                 return
             end
-
             button.Text = PrettyInputName(Settings[settingKey])
             button.TextColor3 = C.White
             button.BackgroundColor3 = C.Panel
@@ -838,7 +767,6 @@ local function CreateTargetToggle(label, x, settingKey)
         AutoButtonColor = false,
         ZIndex = 4
     }, TargetContainer)
-
     AddCorner(button, 6)
     AddStroke(button, 0.6)
 
@@ -849,7 +777,6 @@ local function CreateTargetToggle(label, x, settingKey)
         BorderSizePixel = 0,
         ZIndex = 5
     }, button)
-
     AddCorner(checkBox, 4)
     AddStroke(checkBox, 0.35)
 
@@ -878,17 +805,11 @@ local function CreateTargetToggle(label, x, settingKey)
 
     local function Refresh(instant)
         local duration = instant and 0 or 0.12
-
         Tween(checkBox, duration, {
-            BackgroundColor3 = Settings[settingKey]
-                and C.White
-                or C.Panel
+            BackgroundColor3 = Settings[settingKey] and C.White or C.Panel
         })
-
         Tween(check, duration, {
-            TextTransparency = Settings[settingKey]
-                and 0
-                or 1
+            TextTransparency = Settings[settingKey] and 0 or 1
         })
     end
 
@@ -956,7 +877,6 @@ local function CreateSlider(label, y, settingKey)
         Active = true,
         ZIndex = 4
     }, row)
-
     AddCorner(bar, 4)
 
     local fill = Create("Frame", {
@@ -965,7 +885,6 @@ local function CreateSlider(label, y, settingKey)
         BorderSizePixel = 0,
         ZIndex = 5
     }, bar)
-
     AddCorner(fill, 4)
 
     local knob = Create("Frame", {
@@ -977,7 +896,6 @@ local function CreateSlider(label, y, settingKey)
         Active = true,
         ZIndex = 7
     }, bar)
-
     AddCorner(knob, 10)
 
     local dragging = false
@@ -988,11 +906,9 @@ local function CreateSlider(label, y, settingKey)
         valueLabel.Text = string.format("%.2f s", value)
 
         local duration = animate and 0.05 or 0
-
         Tween(fill, duration, {
             Size = UDim2.new(value, 0, 1, 0)
         })
-
         Tween(knob, duration, {
             Position = UDim2.new(value, 0, 0.5, 0)
         })
@@ -1000,15 +916,11 @@ local function CreateSlider(label, y, settingKey)
 
     local function SetFromInput(input)
         local width = bar.AbsoluteSize.X
-
         if width <= 0 then
             return
         end
 
-        local value = (
-            input.Position.X - bar.AbsolutePosition.X
-        ) / width
-
+        local value = (input.Position.X - bar.AbsolutePosition.X) / width
         SetValue(value, true)
     end
 
@@ -1016,7 +928,6 @@ local function CreateSlider(label, y, settingKey)
         if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
             return
         end
-
         dragging = true
         SetFromInput(input)
     end
@@ -1039,7 +950,6 @@ local function CreateSlider(label, y, settingKey)
             if dragging then
                 SaveConfig()
             end
-
             dragging = false
         end
     end)
@@ -1074,7 +984,6 @@ SaveStatusButton = Create("TextButton", {
     AutoButtonColor = false,
     ZIndex = 4
 }, SaveContainer)
-
 AddCorner(SaveStatusButton, 7)
 AddStroke(SaveStatusButton, 0.55)
 
@@ -1082,7 +991,6 @@ SaveStatusButton.MouseEnter:Connect(function()
     if SaveStatusActive then
         return
     end
-
     Tween(SaveStatusButton, 0.1, {
         BackgroundTransparency = 0
     })
@@ -1092,7 +1000,6 @@ SaveStatusButton.MouseLeave:Connect(function()
     if SaveStatusActive then
         return
     end
-
     Tween(SaveStatusButton, 0.1, {
         BackgroundTransparency = 0.08
     })
@@ -1103,7 +1010,8 @@ SaveStatusButton.MouseButton1Click:Connect(function()
 end)
 
 local MouseButtonPressed = false
-local ScriptMouseButtonDown = false
+local ManualMouseButtonDown = false
+local SyntheticMouseButtonDown = false
 
 local function IsMouseOverGui(input)
     if input.UserInputType ~= Enum.UserInputType.MouseButton1
@@ -1113,12 +1021,8 @@ local function IsMouseOverGui(input)
     end
 
     local objects
-
     local ok = pcall(function()
-        objects = GuiService:GetGuiObjectsAtPosition(
-            input.Position.X,
-            input.Position.Y
-        )
+        objects = GuiService:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
     end)
 
     if not ok or type(objects) ~= "table" then
@@ -1126,8 +1030,7 @@ local function IsMouseOverGui(input)
     end
 
     for _, guiObject in ipairs(objects) do
-        if guiObject
-            and guiObject:IsDescendantOf(ScreenGui) then
+        if guiObject and guiObject:IsDescendantOf(ScreenGui) then
             return true
         end
     end
@@ -1136,20 +1039,25 @@ local function IsMouseOverGui(input)
 end
 
 local function SendMouseButton(isDown)
+    if isDown then
+        SyntheticMouseButtonDown = true
+    end
+
     local ok, err = pcall(function()
-        VirtualInputManager:SendMouseButtonEvent(
-            0,
-            0,
-            0,
-            isDown,
-            game,
-            0
-        )
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, isDown, game, 0)
     end)
 
     if not ok then
+        if isDown then
+            SyntheticMouseButtonDown = false
+        end
+
         warn("TB mouse button failed:", err)
         return false
+    end
+
+    if not isDown then
+        SyntheticMouseButtonDown = false
     end
 
     return true
@@ -1169,7 +1077,13 @@ local function PressMouseButton()
 end
 
 local function ReleaseMouseButton()
-    if not MouseButtonPressed or ScriptMouseButtonDown then
+    if not MouseButtonPressed then
+        return
+    end
+
+    -- Never release the triggerbot click while the real mouse button
+    -- is being held by the user.
+    if ManualMouseButtonDown then
         return
     end
 
@@ -1183,13 +1097,11 @@ RaycastParamsObject.IgnoreWater = true
 
 local function GetViewportCenter()
     Camera = workspace.CurrentCamera
-
     if not Camera then
         return nil, nil
     end
 
     local viewportSize = Camera.ViewportSize
-
     return viewportSize.X * 0.5, viewportSize.Y * 0.5
 end
 
@@ -1198,7 +1110,6 @@ local function GetSelectedParts(character)
 
     local function AddPart(name, groupName)
         local part = character:FindFirstChild(name)
-
         if part and part:IsA("BasePart") then
             table.insert(parts, {
                 Part = part,
@@ -1247,7 +1158,6 @@ local function PartToGroup(part)
         or name == "LowerTorso"
         or name == "Torso"
         or name == "HumanoidRootPart" then
-
         return "Torso"
     end
 
@@ -1259,7 +1169,6 @@ local function PartToGroup(part)
         or name == "RightFoot"
         or name == "Left Leg"
         or name == "Right Leg" then
-
         return "Legs"
     end
 
@@ -1270,31 +1179,22 @@ local function IsGroupEnabled(groupName)
     if groupName == "Head" then
         return Settings.Head
     end
-
     if groupName == "Torso" then
         return Settings.Torso
     end
-
     if groupName == "Legs" then
         return Settings.Legs
     end
-
     return false
 end
 
 local function IsPartUnderCursor(part)
     local centerX, centerY = GetViewportCenter()
-
-    if not centerX
-        or not part
-        or not part:IsA("BasePart")
-        or not part.Parent then
-
+    if not centerX or not part or not part:IsA("BasePart") or not part.Parent then
         return false
     end
 
     local halfSize = part.Size * 0.5
-
     local minX = math.huge
     local minY = math.huge
     local maxX = -math.huge
@@ -1304,19 +1204,15 @@ local function IsPartUnderCursor(part)
     for sx = -1, 1, 2 do
         for sy = -1, 1, 2 do
             for sz = -1, 1, 2 do
-                local worldCorner = part.CFrame:PointToWorldSpace(
-                    Vector3.new(
-                        halfSize.X * sx,
-                        halfSize.Y * sy,
-                        halfSize.Z * sz
-                    )
-                )
+                local worldCorner = part.CFrame:PointToWorldSpace(Vector3.new(
+                    halfSize.X * sx,
+                    halfSize.Y * sy,
+                    halfSize.Z * sz
+                ))
 
                 local screenPoint = Camera:WorldToViewportPoint(worldCorner)
-
                 if screenPoint.Z > 0 then
                     anyVisibleCorner = true
-
                     minX = math.min(minX, screenPoint.X)
                     minY = math.min(minY, screenPoint.Y)
                     maxX = math.max(maxX, screenPoint.X)
@@ -1338,19 +1234,12 @@ end
 
 local function GetCenterRaycast()
     local centerX, centerY = GetViewportCenter()
-
     if not centerX then
         return nil
     end
 
-    local ray = Camera:ViewportPointToRay(
-        centerX,
-        centerY
-    )
-
-    RaycastParamsObject.FilterDescendantsInstances = {
-        LocalPlayer.Character
-    }
+    local ray = Camera:ViewportPointToRay(centerX, centerY)
+    RaycastParamsObject.FilterDescendantsInstances = { LocalPlayer.Character }
 
     return workspace:Raycast(
         ray.Origin,
@@ -1360,10 +1249,7 @@ local function GetCenterRaycast()
 end
 
 local function HasLineOfSight(character, part)
-    if not character
-        or not part
-        or not part.Parent then
-
+    if not character or not part or not part.Parent then
         return false
     end
 
@@ -1374,15 +1260,8 @@ local function HasLineOfSight(character, part)
         return true
     end
 
-    RaycastParamsObject.FilterDescendantsInstances = {
-        LocalPlayer.Character
-    }
-
-    local hit = workspace:Raycast(
-        cameraPosition,
-        direction,
-        RaycastParamsObject
-    )
+    RaycastParamsObject.FilterDescendantsInstances = { LocalPlayer.Character }
+    local hit = workspace:Raycast(cameraPosition, direction, RaycastParamsObject)
 
     if not hit then
         return true
@@ -1402,7 +1281,6 @@ end
 
 local function FindTarget()
     Camera = workspace.CurrentCamera
-
     if not Camera then
         return nil
     end
@@ -1413,47 +1291,21 @@ local function FindTarget()
         local hitPart = centerHit.Instance
 
         for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer
-                and player.Character then
-
+            if player ~= LocalPlayer and player.Character then
                 local character = player.Character
-                local humanoid =
-                    character:FindFirstChildOfClass("Humanoid")
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
 
-                if humanoid
-                    and humanoid.Health > 0
-                    and hitPart:IsDescendantOf(character) then
-
+                if humanoid and humanoid.Health > 0 and hitPart:IsDescendantOf(character) then
                     local directGroup = PartToGroup(hitPart)
 
-                    if directGroup
-                        and IsGroupEnabled(directGroup) then
-
-                        return BuildTarget(
-                            player,
-                            character,
-                            hitPart,
-                            directGroup
-                        )
+                    if directGroup and IsGroupEnabled(directGroup) then
+                        return BuildTarget(player, character, hitPart, directGroup)
                     end
 
-                    for _, entry in ipairs(
-                        GetSelectedParts(character)
-                    ) do
-
+                    for _, entry in ipairs(GetSelectedParts(character)) do
                         local part = entry.Part
-
-                        if part
-                            and part.Parent
-                            and IsPartUnderCursor(part)
-                            and HasLineOfSight(character, part) then
-
-                            return BuildTarget(
-                                player,
-                                character,
-                                part,
-                                entry.Name
-                            )
+                        if part and part.Parent and IsPartUnderCursor(part) and HasLineOfSight(character, part) then
+                            return BuildTarget(player, character, part, entry.Name)
                         end
                     end
 
@@ -1463,40 +1315,21 @@ local function FindTarget()
         end
 
         local model = hitPart:FindFirstAncestorOfClass("Model")
-
-        if model
-            and Players:GetPlayerFromCharacter(model) then
-
+        if model and Players:GetPlayerFromCharacter(model) then
             return nil
         end
     end
 
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer
-            and player.Character then
-
+        if player ~= LocalPlayer and player.Character then
             local character = player.Character
-            local humanoid =
-                character:FindFirstChildOfClass("Humanoid")
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
 
             if humanoid and humanoid.Health > 0 then
-                for _, entry in ipairs(
-                    GetSelectedParts(character)
-                ) do
-
+                for _, entry in ipairs(GetSelectedParts(character)) do
                     local part = entry.Part
-
-                    if part
-                        and part.Parent
-                        and IsPartUnderCursor(part)
-                        and HasLineOfSight(character, part) then
-
-                        return BuildTarget(
-                            player,
-                            character,
-                            part,
-                            entry.Name
-                        )
+                    if part and part.Parent and IsPartUnderCursor(part) and HasLineOfSight(character, part) then
+                        return BuildTarget(player, character, part, entry.Name)
                     end
                 end
             end
@@ -1519,12 +1352,11 @@ local function CancelRelease()
 end
 
 local function ScheduleRelease()
-    if not MouseButtonPressed then
+    if not MouseButtonPressed or ManualMouseButtonDown then
         return
     end
 
     ReleaseToken += 1
-
     local token = ReleaseToken
     local delayTime = Settings.ReleaseDelay
 
@@ -1541,9 +1373,7 @@ local function ScheduleRelease()
                 return
             end
 
-            if Settings.RightClickOnly
-                and not ActivationHeld then
-
+            if Settings.RightClickOnly and not ActivationHeld then
                 ReleaseMouseButton()
                 return
             end
@@ -1573,17 +1403,19 @@ local function UpdateTriggerbot()
     if not Settings.Enabled then
         CancelPendingShot()
         CancelRelease()
-        ReleaseMouseButton()
+        if not ManualMouseButtonDown then
+            ReleaseMouseButton()
+        end
         LastTargetPlayer = nil
         return
     end
 
-    if Settings.RightClickOnly
-        and not ActivationHeld then
-
+    if Settings.RightClickOnly and not ActivationHeld then
         CancelPendingShot()
         CancelRelease()
-        ReleaseMouseButton()
+        if not ManualMouseButtonDown then
+            ReleaseMouseButton()
+        end
         LastTargetPlayer = nil
         return
     end
@@ -1600,7 +1432,6 @@ local function UpdateTriggerbot()
 
         if LastTargetPlayer ~= target.Player then
             PendingShotToken += 1
-
             local token = PendingShotToken
             local player = target.Player
             local delayTime = Settings.ReactionDelay
@@ -1614,23 +1445,16 @@ local function UpdateTriggerbot()
                     return
                 end
 
-                if not Settings.Enabled
-                    or MouseButtonPressed then
-
+                if not Settings.Enabled or MouseButtonPressed then
                     return
                 end
 
-                if Settings.RightClickOnly
-                    and not ActivationHeld then
-
+                if Settings.RightClickOnly and not ActivationHeld then
                     return
                 end
 
                 local latestTarget = FindTarget()
-
-                if latestTarget
-                    and latestTarget.Player == player then
-
+                if latestTarget and latestTarget.Player == player then
                     PressMouseButton()
                 end
             end)
@@ -1643,12 +1467,30 @@ local function UpdateTriggerbot()
     CancelPendingShot()
     LastTargetPlayer = nil
 
-    if MouseButtonPressed then
+    if MouseButtonPressed and not ManualMouseButtonDown then
         ScheduleRelease()
     end
 end
 
-RunService.RenderStepped:Connect(UpdateTriggerbot)
+RunService.RenderStepped:Connect(function()
+    -- Keep the manual state authoritative even if an input event is missed.
+    -- Our own synthetic click is excluded while SyntheticMouseButtonDown is true.
+    if not SyntheticMouseButtonDown then
+        local physicalDown = false
+
+        pcall(function()
+            physicalDown = UserInputService:IsMouseButtonPressed(
+                Enum.UserInputType.MouseButton1
+            )
+        end)
+
+        if physicalDown then
+            ManualMouseButtonDown = true
+        end
+    end
+
+    UpdateTriggerbot()
+end)
 
 local DraggingPanel = false
 local DragStart = nil
@@ -1676,7 +1518,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 
     local delta = input.Position - DragStart
-
     SetPanelPosition(UDim2.new(
         PanelStart.X.Scale,
         PanelStart.X.Offset + delta.X,
@@ -1686,12 +1527,9 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        and DraggingPanel then
-
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and DraggingPanel then
         DraggingPanel = false
         SetSavedPanelPosition(Panel.Position)
-
         DragStart = nil
         PanelStart = nil
     end
@@ -1711,31 +1549,20 @@ local function SavePanelVisualState()
                 BackgroundTransparency = object.BackgroundTransparency
             }
 
-            if object:IsA("TextLabel")
-                or object:IsA("TextButton")
-                or object:IsA("TextBox") then
-
-                entry.TextTransparency =
-                    object.TextTransparency
-
-                entry.TextStrokeTransparency =
-                    object.TextStrokeTransparency
+            if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then
+                entry.TextTransparency = object.TextTransparency
+                entry.TextStrokeTransparency = object.TextStrokeTransparency
             end
 
-            if object:IsA("ImageLabel")
-                or object:IsA("ImageButton") then
-
-                entry.ImageTransparency =
-                    object.ImageTransparency
+            if object:IsA("ImageLabel") or object:IsA("ImageButton") then
+                entry.ImageTransparency = object.ImageTransparency
             end
 
             if object:IsA("ScrollingFrame") then
-                entry.ScrollBarImageTransparency =
-                    object.ScrollBarImageTransparency
+                entry.ScrollBarImageTransparency = object.ScrollBarImageTransparency
             end
 
             table.insert(OriginalGuiState, entry)
-
         elseif object:IsA("UIStroke") then
             table.insert(OriginalGuiState, {
                 Object = object,
@@ -1745,10 +1572,7 @@ local function SavePanelVisualState()
     end
 
     Record(Panel)
-
-    for _, descendant in ipairs(
-        Panel:GetDescendants()
-    ) do
+    for _, descendant in ipairs(Panel:GetDescendants()) do
         Record(descendant)
     end
 end
@@ -1756,7 +1580,6 @@ end
 local function SetPanelTransparency(hidden, duration)
     for _, entry in ipairs(OriginalGuiState) do
         local object = entry.Object
-
         if object and object.Parent then
             local goal = {}
 
@@ -1764,56 +1587,39 @@ local function SetPanelTransparency(hidden, duration)
                 if entry.BackgroundTransparency ~= nil then
                     goal.BackgroundTransparency = 1
                 end
-
                 if entry.TextTransparency ~= nil then
                     goal.TextTransparency = 1
                 end
-
                 if entry.TextStrokeTransparency ~= nil then
                     goal.TextStrokeTransparency = 1
                 end
-
                 if entry.ImageTransparency ~= nil then
                     goal.ImageTransparency = 1
                 end
-
                 if entry.ScrollBarImageTransparency ~= nil then
                     goal.ScrollBarImageTransparency = 1
                 end
-
                 if entry.Transparency ~= nil then
                     goal.Transparency = 1
                 end
-
             else
                 if entry.BackgroundTransparency ~= nil then
-                    goal.BackgroundTransparency =
-                        entry.BackgroundTransparency
+                    goal.BackgroundTransparency = entry.BackgroundTransparency
                 end
-
                 if entry.TextTransparency ~= nil then
-                    goal.TextTransparency =
-                        entry.TextTransparency
+                    goal.TextTransparency = entry.TextTransparency
                 end
-
                 if entry.TextStrokeTransparency ~= nil then
-                    goal.TextStrokeTransparency =
-                        entry.TextStrokeTransparency
+                    goal.TextStrokeTransparency = entry.TextStrokeTransparency
                 end
-
                 if entry.ImageTransparency ~= nil then
-                    goal.ImageTransparency =
-                        entry.ImageTransparency
+                    goal.ImageTransparency = entry.ImageTransparency
                 end
-
                 if entry.ScrollBarImageTransparency ~= nil then
-                    goal.ScrollBarImageTransparency =
-                        entry.ScrollBarImageTransparency
+                    goal.ScrollBarImageTransparency = entry.ScrollBarImageTransparency
                 end
-
                 if entry.Transparency ~= nil then
-                    goal.Transparency =
-                        entry.Transparency
+                    goal.Transparency = entry.Transparency
                 end
             end
 
@@ -1845,7 +1651,6 @@ local function ToggleMenu()
         SetPanelPosition(hiddenStart)
         SetPanelTransparency(true, 0)
         SetPanelTransparency(false, 0.16)
-
         Tween(Panel, 0.16, {
             Position = PanelPosition
         })
@@ -1855,10 +1660,8 @@ local function ToggleMenu()
                 SetPanelPosition(PanelPosition)
                 SetPanelTransparency(false, 0)
             end
-
             AnimatingVisibility = false
         end)
-
     else
         SavePanelVisualState()
         SetPanelTransparency(true, 0.14)
@@ -1880,7 +1683,6 @@ local function ToggleMenu()
                 SetPanelPosition(PanelPosition)
                 SetPanelTransparency(false, 0)
             end
-
             AnimatingVisibility = false
         end)
     end
@@ -1894,19 +1696,22 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 
     local overGui = IsMouseOverGui(input)
 
-    if InputMatches(input, Settings.ActivationKey)
-        and not overGui
-        and not gameProcessed then
-
+    if InputMatches(input, Settings.ActivationKey) and not overGui and not gameProcessed then
         ActivationHeld = true
     end
 
-    if InputMatches(input, Settings.MenuKey)
-        and not overGui
-        and not gameProcessed then
-
+    if InputMatches(input, Settings.MenuKey) and not overGui and not gameProcessed then
         ToggleMenu()
         return
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        -- Ignore the InputBegan generated by our own VirtualInputManager call.
+        if not SyntheticMouseButtonDown then
+            ManualMouseButtonDown = true
+        end
     end
 end)
 
@@ -1923,15 +1728,8 @@ UserInputService.InputEnded:Connect(function(input)
     end
 
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        ScriptMouseButtonDown = false
-    end
-end)
-
-UserInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        and IsMouseOverGui(input) then
-
-        ScriptMouseButtonDown = true
+        -- An actual physical release always ends the manual hold state.
+        ManualMouseButtonDown = false
     end
 end)
 
@@ -1941,13 +1739,12 @@ end)
 
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.5)
-
     Camera = workspace.CurrentCamera
-
     CancelPendingShot()
     CancelRelease()
-    ReleaseMouseButton()
-
+    if not ManualMouseButtonDown then
+        ReleaseMouseButton()
+    end
     LastTargetPlayer = nil
     ActivationHeld = false
 end)
